@@ -114,7 +114,8 @@ router.post('/', upload.fields([
             fecha_fin,
             imagen_principal: imagenPrincipalPath,
             imagen_secundaria: imagenSecundariaPath,
-            estado
+            estado,
+            limite_uso: body.limite_uso || null
         };
 
         const promocionDataSanitizada = Object.fromEntries(
@@ -386,9 +387,8 @@ router.put('/:id', upload.fields([
                 ? (body.fecha_fin || body.fechaFin) 
                 : existingPromo.data.fecha_fin,
           estado: body.estado !== undefined ? body.estado : existingPromo.data.estado,
-              limitar_uso: body.limitar_uso !== undefined ? (parseInt(body.limitar_uso) || 0) :
-  (existingPromo.data.limitar_uso || 0)
-          };
+          limite_uso: body.limite_uso !== undefined ? (body.limite_uso || null) : (existingPromo.data.limite_uso || null)
+        };
 
         // ⭐⭐ MANEJAR ELIMINACIÓN DE IMÁGENES (string vacío o null)
         // Si se envía un string vacío o null explícitamente, eliminar la imagen
