@@ -30,11 +30,11 @@
   // POST - Crear nuevo tipo de promoción
   router.post('/', async (req, res) => {
       try {
-          const { nombre, instituciones } = req.body;
+          const { nombre, instituciones, activo } = req.body;
           if (!nombre || !nombre.trim()) {
               return res.status(400).json({ success: false, error: 'El nombre es obligatorio' });
           }
-          const result = await TipoPromocion.create(nombre.trim(), instituciones || []);
+          const result = await TipoPromocion.create(nombre.trim(), instituciones || [], activo !== false);
           res.json({ success: true, message: 'Tipo de promoción creado exitosamente', data: result });
       } catch (error) {
           if (error.code === 'ER_DUP_ENTRY') {
@@ -48,11 +48,11 @@
   // PUT - Actualizar tipo de promoción
   router.put('/:id', async (req, res) => {
       try {
-          const { nombre, instituciones } = req.body;
+          const { nombre, instituciones, activo } = req.body;
           if (!nombre || !nombre.trim()) {
               return res.status(400).json({ success: false, error: 'El nombre es obligatorio' });
           }
-          const result = await TipoPromocion.update(req.params.id, nombre.trim(), instituciones || []);
+          const result = await TipoPromocion.update(req.params.id, nombre.trim(), instituciones || [], activo !== false);
           if (result.affectedRows === 0) {
               return res.status(404).json({ success: false, error: 'Tipo de promoción no encontrado' });
           }

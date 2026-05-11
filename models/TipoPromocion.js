@@ -42,11 +42,11 @@ class TipoPromocion {
         }
     }
 
-    static async create(nombre, instituciones = []) {
+    static async create(nombre, instituciones = [], activo = true) {
         try {
             const [result] = await db.execute(
-                'INSERT INTO tipos_promocion (nombre) VALUES (?)',
-                [nombre]
+                'INSERT INTO tipos_promocion (nombre, activo) VALUES (?, ?)',
+                [nombre, activo ? 1 : 0]
             );
 
             const tipoId = result.insertId;
@@ -69,15 +69,15 @@ class TipoPromocion {
         }
     }
 
-	static async update(id, nombre, instituciones = []) {
+	static async update(id, nombre, instituciones = [], activo = true) {
       try {
           // Obtener el nombre anterior para actualizar las promociones existentes
           const [rows] = await db.execute('SELECT nombre FROM tipos_promocion WHERE id = ?', [id]);
           const nombreAnterior = rows[0]?.nombre;
 
           const [result] = await db.execute(
-              'UPDATE tipos_promocion SET nombre = ? WHERE id = ?',
-              [nombre, id]
+              'UPDATE tipos_promocion SET nombre = ?, activo = ? WHERE id = ?',
+              [nombre, activo ? 1 : 0, id]
           );
 
           // Actualizar el nombre en todas las promociones que usen el nombre anterior
