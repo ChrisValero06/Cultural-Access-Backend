@@ -66,6 +66,22 @@
       }
   });
 
+  // PATCH - Activar o desactivar tipo de promoción
+  router.patch('/:id/activo', async (req, res) => {
+      try {
+          const activo = req.body.activo;
+          const activoFinal = (activo === true || activo === 1) ? 1 : 0;
+          const result = await TipoPromocion.setActivo(req.params.id, activoFinal);
+          if (result.affectedRows === 0) {
+              return res.status(404).json({ success: false, error: 'Tipo de promoción no encontrado' });
+          }
+          res.json({ success: true, activo: activoFinal });
+      } catch (error) {
+          console.error('Error en PATCH /tipos-promocion/:id/activo:', error);
+          res.status(500).json({ success: false, error: 'Error al actualizar estado' });
+      }
+  });
+
   // DELETE - Eliminar tipo de promoción
   router.delete('/:id', async (req, res) => {
       try {

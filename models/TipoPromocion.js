@@ -110,6 +110,19 @@ class TipoPromocion {
       }
   }
 
+    static async setActivo(id, activo) {
+        try {
+            const [result] = await db.execute(
+                'UPDATE tipos_promocion SET activo = ? WHERE id = ?',
+                [activo ? 1 : 0, id]
+            );
+            return { affectedRows: result.affectedRows };
+        } catch (error) {
+            console.error('Error en TipoPromocion.setActivo:', error);
+            throw error;
+        }
+    }
+
     static async delete(id) {
         try {
             // Eliminar instituciones asignadas primero
