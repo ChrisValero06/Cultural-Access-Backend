@@ -5,6 +5,7 @@
   const institucionesRouter = require('./instituciones');
   const tiposPromocionRouter = require('./tipos-promocion');
   const authRouter = require('./login');
+  const newsletterRouter = require('./newsletter');
 
   module.exports = (app) => {
       app.use('/api/usuario', usuariosRouter);
@@ -13,4 +14,5 @@
       app.use('/api/instituciones', institucionesRouter);
       app.use('/api/tipos-promocion', tiposPromocionRouter);
       app.use('/api/auth', authRouter);
+      app.use('/api/newsletter', newsletterRouter);
   };
