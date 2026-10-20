@@ -3,6 +3,13 @@ const fs = require('fs');
 const path = require('path');
 
 // Plesk a veces no inyecta las variables nuevas al proceso. Se leen directo del .env.
+const ARCHIVOS_ENV = [
+  path.join(__dirname, '..', '.env'),
+  path.join(__dirname, '..', '..', '.env'),
+  path.join(process.cwd(), '.env'),
+  path.join(process.cwd(), 'httpdocs', '.env'),
+];
+
 function cargarEnvNewsletter() {
   for (const clave of Object.keys(process.env)) {
     const limpia = clave.trim();
@@ -10,11 +17,7 @@ function cargarEnvNewsletter() {
       process.env[limpia] = String(process.env[clave]).trim();
     }
   }
-  const candidatos = [
-    path.join(__dirname, '..', '.env'),
-    path.join(__dirname, '..', '..', '.env'),
-  ];
-  for (const archivo of candidatos) {
+  for (const archivo of ARCHIVOS_ENV) {
     if (!fs.existsSync(archivo)) continue;
     const texto = fs.readFileSync(archivo, 'utf8').replace(/^\uFEFF/, '');
     for (const linea of texto.split(/\r?\n/)) {
@@ -27,6 +30,11 @@ function cargarEnvNewsletter() {
       if (valor) process.env[coincidencia[1]] = valor;
     }
   }
+}
+
+function detalleEnvNewsletter() {
+  const vistos = ARCHIVOS_ENV.map((archivo) => `${archivo} ${fs.existsSync(archivo) ? 'existe' : 'no existe'}`);
+  return `Revisados: ${vistos.join(' | ')}. API_KEY=${process.env.MAILCHIMP_API_KEY ? 'si' : 'no'}, PREFIX=${process.env.MAILCHIMP_SERVER_PREFIX ? 'si' : 'no'}`;
 }
 
 cargarEnvNewsletter();
@@ -51,22 +59,22 @@ aplicarConfiguracionMailchimp();
 const SITE_URL = 'https://culturallaccess.com';
 const FROM_NAME = process.env.MAILCHIMP_FROM_NAME || 'CulturAll Access';
 const REPLY_TO = process.env.MAILCHIMP_REPLY_TO || 'culturallaccess@nuevoleon.gob.mx';
-const AUDIENCE_ID = process.env.MAILCHIMP_AUDIENCE_ID || null;
-
 function verificarConfiguracion() {
+  cargarEnvNewsletter();
   aplicarConfiguracionMailchimp();
   if (!process.env.MAILCHIMP_API_KEY || !process.env.MAILCHIMP_SERVER_PREFIX) {
-    throw new Error('Mailchimp no está configurado: faltan MAILCHIMP_API_KEY o MAILCHIMP_SERVER_PREFIX en el .env');
+    throw new Error(`Mailchimp no está configurado. ${detalleEnvNewsletter()}`);
   }
 }
 
 // Obligatorio: la cuenta es compartida con Residente y sin esto se enviaría a su audiencia
 async function getAudienceId() {
   verificarConfiguracion();
-  if (!AUDIENCE_ID) {
-    throw new Error('Falta MAILCHIMP_AUDIENCE_ID en el .env (ID del audience de CulturAll Access)');
+  const audienceId = process.env.MAILCHIMP_AUDIENCE_ID;
+  if (!audienceId) {
+    throw new Error(`Falta MAILCHIMP_AUDIENCE_ID. ${detalleEnvNewsletter()}`);
   }
-  return AUDIENCE_ID;
+  return audienceId;
 }
 
 async function obtenerConteoAudiencia() {
