@@ -5,7 +5,13 @@
   const institucionesRouter = require('./instituciones');
   const tiposPromocionRouter = require('./tipos-promocion');
   const authRouter = require('./login');
-  const newsletterRouter = require('./newsletter');
+
+  let newsletterRouter = null;
+  try {
+      newsletterRouter = require('./newsletter');
+  } catch (error) {
+      console.error('Newsletter no se cargó. El resto de la API sigue activo:', error.message);
+  }
 
   module.exports = (app) => {
       app.use('/api/usuario', usuariosRouter);
@@ -14,5 +20,7 @@
       app.use('/api/instituciones', institucionesRouter);
       app.use('/api/tipos-promocion', tiposPromocionRouter);
       app.use('/api/auth', authRouter);
-      app.use('/api/newsletter', newsletterRouter);
+      if (newsletterRouter) {
+          app.use('/api/newsletter', newsletterRouter);
+      }
   };

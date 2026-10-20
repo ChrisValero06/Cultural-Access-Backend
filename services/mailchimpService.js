@@ -1,14 +1,52 @@
 // services/mailchimpService.js
+const fs = require('fs');
+const path = require('path');
+
+// Plesk a veces no inyecta las variables nuevas al proceso. Se leen directo del .env.
+function cargarEnvNewsletter() {
+  for (const clave of Object.keys(process.env)) {
+    const limpia = clave.trim();
+    if (limpia.startsWith('MAILCHIMP_') && limpia !== clave && process.env[clave] && !process.env[limpia]) {
+      process.env[limpia] = String(process.env[clave]).trim();
+    }
+  }
+  const candidatos = [
+    path.join(__dirname, '..', '.env'),
+    path.join(__dirname, '..', '..', '.env'),
+  ];
+  for (const archivo of candidatos) {
+    if (!fs.existsSync(archivo)) continue;
+    const texto = fs.readFileSync(archivo, 'utf8').replace(/^\uFEFF/, '');
+    for (const linea of texto.split(/\r?\n/)) {
+      const coincidencia = linea.match(/^\s*(MAILCHIMP_[A-Z0-9_]+)\s*=\s*(.*)$/);
+      if (!coincidencia) continue;
+      let valor = coincidencia[2].trim();
+      if ((valor.startsWith('"') && valor.endsWith('"')) || (valor.startsWith("'") && valor.endsWith("'"))) {
+        valor = valor.slice(1, -1);
+      }
+      if (valor) process.env[coincidencia[1]] = valor;
+    }
+  }
+}
+
+cargarEnvNewsletter();
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+cargarEnvNewsletter();
+
 const mailchimp = require('@mailchimp/mailchimp_marketing');
 const https = require('https');
 const http = require('http');
 const crypto = require('crypto');
 const sharp = require('sharp');
 
-mailchimp.setConfig({
-  apiKey: process.env.MAILCHIMP_API_KEY,
-  server: process.env.MAILCHIMP_SERVER_PREFIX, // ej: us21 (lo que va después del guion en la API key)
-});
+function aplicarConfiguracionMailchimp() {
+  mailchimp.setConfig({
+    apiKey: process.env.MAILCHIMP_API_KEY,
+    server: process.env.MAILCHIMP_SERVER_PREFIX, // ej: us21 (lo que va después del guion en la API key)
+  });
+}
+
+aplicarConfiguracionMailchimp();
 
 const SITE_URL = 'https://culturallaccess.com';
 const FROM_NAME = process.env.MAILCHIMP_FROM_NAME || 'CulturAll Access';
@@ -16,6 +54,7 @@ const REPLY_TO = process.env.MAILCHIMP_REPLY_TO || 'culturallaccess@nuevoleon.go
 const AUDIENCE_ID = process.env.MAILCHIMP_AUDIENCE_ID || null;
 
 function verificarConfiguracion() {
+  aplicarConfiguracionMailchimp();
   if (!process.env.MAILCHIMP_API_KEY || !process.env.MAILCHIMP_SERVER_PREFIX) {
     throw new Error('Mailchimp no está configurado: faltan MAILCHIMP_API_KEY o MAILCHIMP_SERVER_PREFIX en el .env');
   }
