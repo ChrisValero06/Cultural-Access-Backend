@@ -1,5 +1,8 @@
 // routes/newsletter.js
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
 const multer = require('multer');
 const router = express.Router();
 const CampanaNewsletter = require('../models/CampanaNewsletter');
@@ -125,12 +128,31 @@ router.get('/audiencia', soloAdmin, async (req, res) => {
 
 // ═══════════════ Imágenes ═══════════════
 
-// POST /imagenes — sube una imagen directo al CDN de Mailchimp (portadas e imágenes sueltas)
+// La app puede vivir en /backend o en /backend/httpdocs. Se usa la carpeta que ya existe.
+function directorioUploads() {
+    const opciones = [
+        path.join(__dirname, '../images/uploads'),
+        path.join(__dirname, '../httpdocs/images/uploads'),
+    ];
+    return opciones.find((dir) => fs.existsSync(dir)) || opciones[0];
+}
+
+// POST /imagenes — guarda la imagen en el sitio. Mailchimp la toma al enviar la campaña.
 router.post('/imagenes', soloAdmin, upload.single('imagen'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ success: false, error: 'No se recibió ninguna imagen' });
-        const url = await mailchimp.subirBufferAMailchimp(req.file.buffer, req.file.originalname);
-        res.json({ success: true, url });
+        const dir = directorioUploads();
+        await fs.promises.mkdir(dir, { recursive: true });
+
+        const esGif = (req.file.originalname || '').toLowerCase().endsWith('.gif');
+        const base = (req.file.originalname || 'imagen').replace(/\.[^.]+$/, '').replace(/[^\w-]+/g, '_');
+        const nombre = esGif ? `${base}.${Date.now()}.gif` : `${base}.${Date.now()}.png`;
+        const buffer = esGif
+            ? req.file.buffer
+            : await sharp(req.file.buffer).resize(1200, 1200, { fit: 'inside', withoutEnlargement: true }).png({ compressionLevel: 9 }).toBuffer();
+
+        await fs.promises.writeFile(path.join(dir, nombre), buffer);
+        res.json({ success: true, url: `/images/uploads/${nombre}` });
     } catch (error) {
         console.error('Error subiendo imagen del newsletter:', mensajeError(error));
         res.status(500).json({ success: false, error: mensajeError(error) });
