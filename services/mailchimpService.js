@@ -5,9 +5,11 @@ const path = require('path');
 // Plesk a veces no inyecta las variables nuevas al proceso. Se leen directo del .env.
 const ARCHIVOS_ENV = [
   path.join(__dirname, '..', '.env'),
+  path.join(__dirname, '..', 'env'),
   path.join(__dirname, '..', '..', '.env'),
+  path.join(__dirname, '..', '..', 'env'),
   path.join(process.cwd(), '.env'),
-  path.join(process.cwd(), 'httpdocs', '.env'),
+  path.join(process.cwd(), 'env'),
 ];
 
 function cargarEnvNewsletter() {
