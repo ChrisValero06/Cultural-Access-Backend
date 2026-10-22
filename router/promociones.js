@@ -35,8 +35,13 @@ router.use((req, res, next) => {
     next();
 });
 
-// Configuración de rutas de imágenes
-const UPLOADS_DIR = path.join(__dirname, '../httpdocs/images/uploads');
+// La app puede vivir en /backend o en /backend/httpdocs. Se usa la carpeta que ya existe.
+// PROMOCIONES_UPLOADS_DIR en .env tiene prioridad.
+const UPLOADS_DIR = process.env.PROMOCIONES_UPLOADS_DIR || [
+    path.join(__dirname, '../images/uploads'),
+    path.join(__dirname, '../httpdocs/images/uploads'),
+].find((dir) => require('fs').existsSync(dir)) || path.join(__dirname, '../images/uploads');
+console.log('📁 Carpeta de imágenes de promociones:', UPLOADS_DIR);
 
 // Configuración de multer para recibir archivos en memoria
 const upload = multer({
