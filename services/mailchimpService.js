@@ -250,6 +250,11 @@ async function reemplazarImagenesConMailchimp(campana) {
     if ((b.tipo === 'portada' || b.tipo === 'imagen') && b.url) {
       b.url = await subirImagenAMailchimp(b.url);
     }
+    if (b.tipo === 'editorial') {
+      for (const key of ['imagen_1', 'imagen_2', 'imagen_3', 'imagen_4', 'imagen_5']) {
+        if (b[key]) b[key] = await subirImagenAMailchimp(b[key], 800);
+      }
+    }
     if (b.tipo === 'promociones' && Array.isArray(b.items)) {
       b.items = await Promise.all(b.items.map(async (p) => ({
         ...p,

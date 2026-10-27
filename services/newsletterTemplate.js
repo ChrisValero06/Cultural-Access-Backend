@@ -6,7 +6,10 @@ const SITE_URL = 'https://culturallaccess.com';
 const LOGO_URL = `${SITE_URL}/images/culturaaaaaaaaaalaccesssssslogo-04.png`;
 const LOGO_FOOTER_URL = `${SITE_URL}/images/logo%20footer.png`;
 const COLOR_DEFAULT = '#F97316';
+const COLOR_EDITORIAL = '#8D6E63';
+const BEIGE = '#F5EBE0';
 const FUENTE = "'Montserrat','Helvetica Neue',Helvetica,Arial,sans-serif";
+const FUENTE_SERIF = "Georgia,'Times New Roman',Times,serif";
 
 function esc(texto) {
   return String(texto ?? '')
@@ -62,11 +65,22 @@ function formatearFecha(fecha) {
 }
 
 function boton(texto, href, color) {
-  return `<a href="${esc(href)}" target="_blank" style="background-color:${color};color:#ffffff;text-decoration:none;padding:12px 26px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:inline-block;border-radius:6px;font-family:${FUENTE};">${esc(texto)}</a>`;
+  return `<a href="${esc(href)}" target="_blank" style="background-color:${color};color:#ffffff;text-decoration:none;padding:12px 26px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:inline-block;border-radius:0;font-family:${FUENTE};">${esc(texto)}</a>`;
+}
+
+function botonEditorial(texto, href, color) {
+  return `<a href="${esc(href || SITE_URL)}" target="_blank" style="background-color:${color};color:#ffffff;text-decoration:none;padding:10px 22px;font-size:12px;font-weight:600;display:inline-block;border-radius:0;font-family:${FUENTE};box-shadow:3px 3px 0 rgba(0,0,0,0.12);">${esc(texto || 'Leer más')}</a>`;
 }
 
 function fila(contenido, padding = '0 30px 26px 30px') {
   return `<tr><td class="nl-pad" style="padding:${padding};">${contenido}</td></tr>`;
+}
+
+function imgTag(src, ancho, alt = '', extraStyle = '') {
+  if (!src) {
+    return `<div style="width:100%;max-width:${ancho}px;height:${Math.round(ancho * 0.75)}px;background-color:${BEIGE};font-family:${FUENTE};font-size:12px;color:#9ca3af;text-align:center;line-height:${Math.round(ancho * 0.75)}px;">Imagen</div>`;
+  }
+  return `<img src="${esc(urlImagen(src))}" width="${ancho}" alt="${esc(alt)}" style="border:0;display:block;width:100%;max-width:${ancho}px;height:auto;${extraStyle}">`;
 }
 
 // ── Bloques ──
@@ -159,8 +173,128 @@ function renderSeparador() {
   return fila('<div style="border-top:1px solid #e5e7eb;font-size:0;line-height:0;">&nbsp;</div>');
 }
 
+/** Diseño tipo mockup editorial (5 imágenes + textos) */
+function renderEditorial(b, campana, color) {
+  const marron = colorValido(color) === COLOR_DEFAULT ? COLOR_EDITORIAL : colorValido(color);
+  const titulo = b.titulo || campana.titulo || 'CulturAll Access';
+  const subtitulo = b.subtitulo || '';
+  const intro = b.intro_caja || campana.intro_texto || '';
+  const cta1 = b.cta1_texto || 'Leer más';
+  const cta1Link = conUtm(b.cta1_link || SITE_URL, campana);
+  const etiquetaDia = (b.etiqueta_dia || '').toUpperCase();
+  const metaLabel = (b.meta_label || 'NEWSLETTER').toUpperCase();
+  const fecha = b.fecha_display || '';
+  const sec2Titulo = b.seccion2_titulo || '';
+  const sec2Texto = b.seccion2_texto || '';
+  const cta2 = b.cta2_texto || 'Leer más';
+  const cta2Link = conUtm(b.cta2_link || SITE_URL, campana);
+  const galeriaTitulo = (b.galeria_titulo || 'ALGO ESPECIAL HOY').toUpperCase();
+  const cierreTitulo = (b.cierre_titulo || '').toUpperCase();
+  const cierreTexto = b.cierre_texto || '';
+  const follow = (b.follow_texto || 'SÍGUENOS').toUpperCase();
+
+  const socialIcon = (href, label) => {
+    if (!href) return '';
+    return `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin-left:14px;color:#ffffff;font-family:${FUENTE};font-size:12px;text-decoration:none;letter-spacing:0.5px;">${esc(label)}</a>`;
+  };
+
+  return `
+  <tr>
+    <td style="padding:28px 24px 10px 24px;background-color:#ffffff;">
+      <!-- Zona 1: título + intro | imagen 1 -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="nl-stack" width="54%" valign="top" style="padding-right:14px;">
+            <h1 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 6px 0;font-size:34px;line-height:1.15;color:#3f3a36;">${esc(titulo)}</h1>
+            ${subtitulo ? `<p style="font-family:${FUENTE};margin:0 0 18px 0;font-size:13px;color:#8a8178;">${esc(subtitulo)}</p>` : '<div style="height:14px;"></div>'}
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BEIGE};">
+              <tr>
+                <td style="padding:18px 16px;">
+                  ${parrafos(intro, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#5c554e;`)}
+                  <div style="margin-top:14px;">${botonEditorial(cta1, cta1Link, marron)}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td class="nl-stack" width="46%" valign="top" style="padding-left:6px;">
+            ${etiquetaDia ? `<div style="background-color:${marron};color:#ffffff;font-family:${FUENTE};font-size:11px;letter-spacing:2px;text-align:center;padding:8px 10px;margin-bottom:0;">${esc(etiquetaDia)}</div>` : ''}
+            ${imgTag(b.imagen_1, 260, 'Imagen 1')}
+            <p style="font-family:${FUENTE_SERIF};margin:12px 0 6px 0;font-size:16px;color:#3f3a36;letter-spacing:1px;">${esc(metaLabel)}</p>
+            ${fecha ? `<div style="background-color:${BEIGE};font-family:${FUENTE};font-size:12px;color:#5c554e;padding:8px 12px;display:inline-block;">${esc(fecha)}</div>` : ''}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Zona 2: imagen 2 + texto -->
+  <tr>
+    <td style="padding:28px 24px 10px 24px;background-color:#ffffff;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="nl-stack" width="58%" valign="middle" style="padding-right:16px;position:relative;">
+            <div style="background-color:${BEIGE};padding:10px 10px 10px 0;">
+              ${imgTag(b.imagen_2, 320, 'Imagen 2')}
+            </div>
+          </td>
+          <td class="nl-stack" width="42%" valign="middle">
+            ${sec2Titulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 10px 0;font-size:26px;line-height:1.2;color:#3f3a36;">${esc(sec2Titulo)}</h2>` : ''}
+            ${parrafos(sec2Texto, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#5c554e;`)}
+            <div style="margin-top:14px;">${botonEditorial(cta2, cta2Link, marron)}</div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Zona 3: galería 3 imágenes -->
+  <tr>
+    <td style="padding:32px 24px 10px 24px;background-color:#ffffff;text-align:center;">
+      <p style="font-family:${FUENTE_SERIF};margin:0 0 20px 0;font-size:15px;letter-spacing:3px;color:#3f3a36;">${esc(galeriaTitulo)}</p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="nl-stack" width="33.33%" valign="top" style="padding:4px;">
+            <div style="background-color:${BEIGE};padding:6px;">${imgTag(b.imagen_3, 170, 'Imagen 3')}</div>
+          </td>
+          <td class="nl-stack" width="33.33%" valign="top" style="padding:4px;">
+            <div style="background-color:${marron};padding:6px;">${imgTag(b.imagen_4, 170, 'Imagen 4')}</div>
+          </td>
+          <td class="nl-stack" width="33.33%" valign="top" style="padding:4px;">
+            <div style="background-color:${BEIGE};padding:6px;">${imgTag(b.imagen_5, 170, 'Imagen 5')}</div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Zona 4: cierre -->
+  <tr>
+    <td style="padding:36px 40px 28px 40px;background-color:#ffffff;text-align:center;">
+      ${cierreTitulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 12px 0;font-size:22px;letter-spacing:2px;color:#3f3a36;">${esc(cierreTitulo)}</h2>` : ''}
+      ${parrafos(cierreTexto, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#5c554e;text-align:center;`)}
+    </td>
+  </tr>
+
+  <!-- Footer follow us -->
+  <tr>
+    <td style="background-color:${marron};padding:16px 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td align="left" style="font-family:${FUENTE};font-size:12px;letter-spacing:2px;color:#ffffff;">${esc(follow)}</td>
+          <td align="right">
+            ${socialIcon(b.social_facebook, 'Facebook')}
+            ${socialIcon(b.social_x, 'X')}
+            ${socialIcon(b.social_instagram, 'Instagram')}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>`;
+}
+
 function renderBloque(b, campana, color) {
   switch (b?.tipo) {
+    case 'editorial': return renderEditorial(b, campana, color);
     case 'texto': return renderTexto(b);
     case 'promociones': return renderPromociones(b, campana, color);
     case 'imagen': return renderImagen(b);
@@ -174,13 +308,17 @@ function renderBloque(b, campana, color) {
 function renderNewsletter(campana, opciones = {}) {
   const color = colorValido(campana.color_primario);
   const bloques = Array.isArray(campana.bloques) ? campana.bloques : [];
+  const tieneEditorial = bloques.some((b) => b?.tipo === 'editorial');
   const portadas = bloques.filter((b) => b?.tipo === 'portada').map(renderPortada).join('');
-  const contenido = bloques.filter((b) => b?.tipo !== 'portada').map((b) => renderBloque(b, campana, color)).join('');
+  const contenido = bloques
+    .filter((b) => b?.tipo !== 'portada')
+    .map((b) => renderBloque(b, campana, color))
+    .join('');
 
-  const titulo = campana.titulo
+  const titulo = (!tieneEditorial && campana.titulo)
     ? fila(`<h1 class="nl-t1" style="font-family:${FUENTE};font-weight:900;margin:0;font-size:30px;line-height:1.15;color:#1f2937;text-align:center;">${esc(campana.titulo)}</h1>`, '0 30px 18px 30px')
     : '';
-  const intro = campana.intro_texto
+  const intro = (!tieneEditorial && campana.intro_texto)
     ? fila(parrafos(campana.intro_texto, `font-family:${FUENTE};font-size:16px;line-height:1.6;color:#374151;text-align:center;`))
     : '';
   const footerTexto = campana.footer_texto
@@ -189,6 +327,8 @@ function renderNewsletter(campana, opciones = {}) {
 
   const linkBaja = opciones.preview ? '#' : '*|UNSUB|*';
   const direccion = opciones.preview ? '' : '*|HTML:LIST_ADDRESS_HTML|*';
+  const colorBarra = tieneEditorial ? (color === COLOR_DEFAULT ? COLOR_EDITORIAL : color) : color;
+  const bgBody = tieneEditorial ? '#f7f3ef' : '#f3f4f6';
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -205,22 +345,21 @@ function renderNewsletter(campana, opciones = {}) {
       .nl-t2 { font-size: 19px !important; }
       .nl-promo-img { display: block !important; width: 100% !important; padding: 0 0 12px 0 !important; }
       .nl-promo-img img { width: 100% !important; }
-      .nl-stack { display: block !important; width: 100% !important; }
+      .nl-stack { display: block !important; width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; padding-bottom: 16px !important; }
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:${FUENTE};-webkit-font-smoothing:antialiased;">
-<center style="width:100%;background-color:#f3f4f6;padding:20px 0;">
+<body style="margin:0;padding:0;background-color:${bgBody};font-family:${FUENTE};-webkit-font-smoothing:antialiased;">
+<center style="width:100%;background-color:${bgBody};padding:20px 0;">
 <!--[if mso]><table width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
 <table class="nl-outer" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;margin:0 auto;width:100%;max-width:600px;border-spacing:0;">
 
-  <tr><td style="background-color:${color};height:6px;font-size:0;line-height:0;">&nbsp;</td></tr>
-
+  ${tieneEditorial ? '' : `<tr><td style="background-color:${color};height:6px;font-size:0;line-height:0;">&nbsp;</td></tr>
   <tr>
     <td align="center" style="padding:26px 30px 22px 30px;">
       <a href="${SITE_URL}" target="_blank"><img src="${LOGO_URL}" width="260" alt="CulturAll Access" style="border:0;display:block;width:260px;max-width:100%;height:auto;"></a>
     </td>
-  </tr>
+  </tr>`}
 
   ${portadas}
   ${titulo}
@@ -228,7 +367,7 @@ function renderNewsletter(campana, opciones = {}) {
   ${contenido}
 
   <tr>
-    <td align="center" style="background-color:${color};padding:28px 30px;">
+    <td align="center" style="background-color:${colorBarra};padding:28px 30px;">
       <img src="${LOGO_FOOTER_URL}" width="200" alt="Gobierno de Nuevo León" style="border:0;display:block;width:200px;max-width:100%;height:auto;margin:0 auto 14px auto;">
       ${footerTexto}
       <p style="font-family:${FUENTE};margin:10px 0 0 0;font-size:13px;font-weight:700;">
