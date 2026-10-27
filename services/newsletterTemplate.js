@@ -5,9 +5,8 @@
 const SITE_URL = 'https://culturallaccess.com';
 const LOGO_URL = `${SITE_URL}/images/culturaaaaaaaaaalaccesssssslogo-04.png`;
 const LOGO_FOOTER_URL = `${SITE_URL}/images/logo%20footer.png`;
-const COLOR_DEFAULT = '#F97316';
-const COLOR_EDITORIAL = '#8D6E63';
-const BEIGE = '#F5EBE0';
+const COLOR_DEFAULT = '#F97316'; // Naranja del proyecto CulturAll Access
+const BEIGE = '#FFF7ED'; // Naranja muy claro (beige cálido)
 const FUENTE = "'Montserrat','Helvetica Neue',Helvetica,Arial,sans-serif";
 const FUENTE_SERIF = "Georgia,'Times New Roman',Times,serif";
 
@@ -78,9 +77,9 @@ function fila(contenido, padding = '0 30px 26px 30px') {
 
 function imgTag(src, ancho, alt = '', extraStyle = '') {
   if (!src) {
-    return `<div style="width:100%;max-width:${ancho}px;height:${Math.round(ancho * 0.75)}px;background-color:${BEIGE};font-family:${FUENTE};font-size:12px;color:#9ca3af;text-align:center;line-height:${Math.round(ancho * 0.75)}px;">Imagen</div>`;
+    return `<div style="width:100%;max-width:${ancho}px;min-height:120px;background-color:${BEIGE};font-family:${FUENTE};font-size:12px;color:#c2410c;text-align:center;padding:40px 8px;">Sin imagen</div>`;
   }
-  return `<img src="${esc(urlImagen(src))}" width="${ancho}" alt="${esc(alt)}" style="border:0;display:block;width:100%;max-width:${ancho}px;height:auto;${extraStyle}">`;
+  return `<img src="${esc(urlImagen(src))}" width="${ancho}" alt="${esc(alt)}" style="border:0;display:block;width:100%;max-width:100%;height:auto;${extraStyle}">`;
 }
 
 // ── Bloques ──
@@ -173,9 +172,9 @@ function renderSeparador() {
   return fila('<div style="border-top:1px solid #e5e7eb;font-size:0;line-height:0;">&nbsp;</div>');
 }
 
-/** Diseño tipo mockup editorial (5 imágenes + textos) */
+/** Diseño tipo mockup editorial (5 imágenes + textos) — acento = naranja del proyecto */
 function renderEditorial(b, campana, color) {
-  const marron = colorValido(color) === COLOR_DEFAULT ? COLOR_EDITORIAL : colorValido(color);
+  const acento = colorValido(color);
   const titulo = b.titulo || campana.titulo || 'CulturAll Access';
   const subtitulo = b.subtitulo || '';
   const intro = b.intro_caja || campana.intro_texto || '';
@@ -201,26 +200,26 @@ function renderEditorial(b, campana, color) {
   return `
   <tr>
     <td style="padding:28px 24px 10px 24px;background-color:#ffffff;">
-      <!-- Zona 1: título + intro | imagen 1 -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <!-- Zona 1: título + intro | imagen 1 (anchos fijos para clientes de correo) -->
+      <table width="552" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:552px;">
         <tr>
-          <td class="nl-stack" width="54%" valign="top" style="padding-right:14px;">
-            <h1 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 6px 0;font-size:34px;line-height:1.15;color:#3f3a36;">${esc(titulo)}</h1>
-            ${subtitulo ? `<p style="font-family:${FUENTE};margin:0 0 18px 0;font-size:13px;color:#8a8178;">${esc(subtitulo)}</p>` : '<div style="height:14px;"></div>'}
+          <td class="nl-col" width="300" valign="top" style="width:300px;padding-right:12px;">
+            <h1 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 6px 0;font-size:32px;line-height:1.15;color:#1f2937;">${esc(titulo)}</h1>
+            ${subtitulo ? `<p style="font-family:${FUENTE};margin:0 0 18px 0;font-size:13px;color:#6b7280;">${esc(subtitulo)}</p>` : '<div style="height:14px;"></div>'}
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BEIGE};">
               <tr>
                 <td style="padding:18px 16px;">
-                  ${parrafos(intro, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#5c554e;`)}
-                  <div style="margin-top:14px;">${botonEditorial(cta1, cta1Link, marron)}</div>
+                  ${parrafos(intro, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#374151;`)}
+                  <div style="margin-top:14px;">${botonEditorial(cta1, cta1Link, acento)}</div>
                 </td>
               </tr>
             </table>
           </td>
-          <td class="nl-stack" width="46%" valign="top" style="padding-left:6px;">
-            ${etiquetaDia ? `<div style="background-color:${marron};color:#ffffff;font-family:${FUENTE};font-size:11px;letter-spacing:2px;text-align:center;padding:8px 10px;margin-bottom:0;">${esc(etiquetaDia)}</div>` : ''}
-            ${imgTag(b.imagen_1, 260, 'Imagen 1')}
-            <p style="font-family:${FUENTE_SERIF};margin:12px 0 6px 0;font-size:16px;color:#3f3a36;letter-spacing:1px;">${esc(metaLabel)}</p>
-            ${fecha ? `<div style="background-color:${BEIGE};font-family:${FUENTE};font-size:12px;color:#5c554e;padding:8px 12px;display:inline-block;">${esc(fecha)}</div>` : ''}
+          <td class="nl-col" width="240" valign="top" style="width:240px;">
+            ${etiquetaDia ? `<div style="background-color:${acento};color:#ffffff;font-family:${FUENTE};font-size:11px;letter-spacing:2px;text-align:center;padding:8px 10px;">${esc(etiquetaDia)}</div>` : ''}
+            ${imgTag(b.imagen_1, 240, 'Imagen 1')}
+            <p style="font-family:${FUENTE_SERIF};margin:12px 0 6px 0;font-size:16px;color:#1f2937;letter-spacing:1px;">${esc(metaLabel)}</p>
+            ${fecha ? `<div style="background-color:${BEIGE};font-family:${FUENTE};font-size:12px;color:#374151;padding:8px 12px;display:inline-block;">${esc(fecha)}</div>` : ''}
           </td>
         </tr>
       </table>
@@ -230,17 +229,15 @@ function renderEditorial(b, campana, color) {
   <!-- Zona 2: imagen 2 + texto -->
   <tr>
     <td style="padding:28px 24px 10px 24px;background-color:#ffffff;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <table width="552" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:552px;">
         <tr>
-          <td class="nl-stack" width="58%" valign="middle" style="padding-right:16px;position:relative;">
-            <div style="background-color:${BEIGE};padding:10px 10px 10px 0;">
-              ${imgTag(b.imagen_2, 320, 'Imagen 2')}
-            </div>
+          <td class="nl-col" width="320" valign="top" style="width:320px;padding-right:16px;">
+            ${imgTag(b.imagen_2, 320, 'Imagen 2')}
           </td>
-          <td class="nl-stack" width="42%" valign="middle">
-            ${sec2Titulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 10px 0;font-size:26px;line-height:1.2;color:#3f3a36;">${esc(sec2Titulo)}</h2>` : ''}
-            ${parrafos(sec2Texto, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#5c554e;`)}
-            <div style="margin-top:14px;">${botonEditorial(cta2, cta2Link, marron)}</div>
+          <td class="nl-col" width="216" valign="top" style="width:216px;">
+            ${sec2Titulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 10px 0;font-size:24px;line-height:1.2;color:#1f2937;">${esc(sec2Titulo)}</h2>` : ''}
+            ${parrafos(sec2Texto, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#374151;`)}
+            <div style="margin-top:14px;">${botonEditorial(cta2, cta2Link, acento)}</div>
           </td>
         </tr>
       </table>
@@ -250,17 +247,17 @@ function renderEditorial(b, campana, color) {
   <!-- Zona 3: galería 3 imágenes -->
   <tr>
     <td style="padding:32px 24px 10px 24px;background-color:#ffffff;text-align:center;">
-      <p style="font-family:${FUENTE_SERIF};margin:0 0 20px 0;font-size:15px;letter-spacing:3px;color:#3f3a36;">${esc(galeriaTitulo)}</p>
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <p style="font-family:${FUENTE_SERIF};margin:0 0 20px 0;font-size:15px;letter-spacing:3px;color:#1f2937;">${esc(galeriaTitulo)}</p>
+      <table width="552" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:552px;">
         <tr>
-          <td class="nl-stack" width="33.33%" valign="top" style="padding:4px;">
-            <div style="background-color:${BEIGE};padding:6px;">${imgTag(b.imagen_3, 170, 'Imagen 3')}</div>
+          <td class="nl-col" width="180" valign="top" style="width:180px;padding:4px;">
+            <div style="background-color:${BEIGE};padding:6px;">${imgTag(b.imagen_3, 168, 'Imagen 3')}</div>
           </td>
-          <td class="nl-stack" width="33.33%" valign="top" style="padding:4px;">
-            <div style="background-color:${marron};padding:6px;">${imgTag(b.imagen_4, 170, 'Imagen 4')}</div>
+          <td class="nl-col" width="180" valign="top" style="width:180px;padding:4px;">
+            <div style="background-color:${acento};padding:6px;">${imgTag(b.imagen_4, 168, 'Imagen 4')}</div>
           </td>
-          <td class="nl-stack" width="33.33%" valign="top" style="padding:4px;">
-            <div style="background-color:${BEIGE};padding:6px;">${imgTag(b.imagen_5, 170, 'Imagen 5')}</div>
+          <td class="nl-col" width="180" valign="top" style="width:180px;padding:4px;">
+            <div style="background-color:${BEIGE};padding:6px;">${imgTag(b.imagen_5, 168, 'Imagen 5')}</div>
           </td>
         </tr>
       </table>
@@ -270,14 +267,14 @@ function renderEditorial(b, campana, color) {
   <!-- Zona 4: cierre -->
   <tr>
     <td style="padding:36px 40px 28px 40px;background-color:#ffffff;text-align:center;">
-      ${cierreTitulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 12px 0;font-size:22px;letter-spacing:2px;color:#3f3a36;">${esc(cierreTitulo)}</h2>` : ''}
-      ${parrafos(cierreTexto, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#5c554e;text-align:center;`)}
+      ${cierreTitulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 12px 0;font-size:22px;letter-spacing:2px;color:#1f2937;">${esc(cierreTitulo)}</h2>` : ''}
+      ${parrafos(cierreTexto, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#374151;text-align:center;`)}
     </td>
   </tr>
 
   <!-- Footer follow us -->
   <tr>
-    <td style="background-color:${marron};padding:16px 24px;">
+    <td style="background-color:${acento};padding:16px 24px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td align="left" style="font-family:${FUENTE};font-size:12px;letter-spacing:2px;color:#ffffff;">${esc(follow)}</td>
@@ -327,8 +324,8 @@ function renderNewsletter(campana, opciones = {}) {
 
   const linkBaja = opciones.preview ? '#' : '*|UNSUB|*';
   const direccion = opciones.preview ? '' : '*|HTML:LIST_ADDRESS_HTML|*';
-  const colorBarra = tieneEditorial ? (color === COLOR_DEFAULT ? COLOR_EDITORIAL : color) : color;
-  const bgBody = tieneEditorial ? '#f7f3ef' : '#f3f4f6';
+  const colorBarra = color;
+  const bgBody = tieneEditorial ? '#fff7ed' : '#f3f4f6';
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -338,14 +335,15 @@ function renderNewsletter(campana, opciones = {}) {
   <meta name="x-apple-disable-message-reformatting">
   <title>${esc(campana.asunto || 'CulturAll Access')}</title>
   <style type="text/css">
-    @media screen and (max-width: 600px) {
+    /* Solo apilar en pantallas chicas; el correo es ~600px y no debe romper columnas */
+    @media screen and (max-width: 480px) {
       .nl-outer { width: 100% !important; }
       .nl-pad { padding-left: 18px !important; padding-right: 18px !important; }
       .nl-t1 { font-size: 24px !important; }
       .nl-t2 { font-size: 19px !important; }
       .nl-promo-img { display: block !important; width: 100% !important; padding: 0 0 12px 0 !important; }
       .nl-promo-img img { width: 100% !important; }
-      .nl-stack { display: block !important; width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; padding-bottom: 16px !important; }
+      .nl-stack, .nl-col { display: block !important; width: 100% !important; max-width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; padding-bottom: 16px !important; }
     }
   </style>
 </head>

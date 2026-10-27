@@ -152,7 +152,8 @@ router.post('/imagenes', soloAdmin, upload.single('imagen'), async (req, res) =>
             : await sharp(req.file.buffer).resize(1200, 1200, { fit: 'inside', withoutEnlargement: true }).png({ compressionLevel: 9 }).toBuffer();
 
         await fs.promises.writeFile(path.join(dir, nombre), buffer);
-        res.json({ success: true, url: `/images/uploads/${nombre}` });
+        // URL absoluta para que preview y correos muestren la imagen siempre
+        res.json({ success: true, url: `https://culturallaccess.com/images/uploads/${nombre}` });
     } catch (error) {
         console.error('Error subiendo imagen del newsletter:', mensajeError(error));
         res.status(500).json({ success: false, error: mensajeError(error) });
