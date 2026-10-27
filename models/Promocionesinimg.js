@@ -51,6 +51,9 @@ class Promocion {
   // Crear promoción SIN columnas de imagen
   static async create(promocionData) {
     try {
+      const limiteUso = promocionData.limite_uso === 'una_vez' || promocionData.limite_uso === 'mensual'
+        ? promocionData.limite_uso
+        : null;
       const mapped = {
         institucion: promocionData.institucion ?? null,
         tipo_promocion: promocionData.tipo_promocion ?? null,
@@ -59,7 +62,9 @@ class Promocion {
         comentarios_restricciones: promocionData.comentarios_restricciones ?? null,
         fecha_inicio: promocionData.fecha_inicio ?? null,
         fecha_fin: promocionData.fecha_fin ?? null,
-        estado: promocionData.estado ?? 'activa'
+        estado: promocionData.estado ?? 'activa',
+        limite_uso: limiteUso,
+        limitar_uso: limiteUso ? 1 : (promocionData.limitar_uso == 1 || promocionData.limitar_uso === true || promocionData.limitar_uso === '1' ? 1 : 0),
       };
 
       const entries = Object.entries(mapped);

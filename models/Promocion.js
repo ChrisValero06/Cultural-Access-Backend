@@ -54,6 +54,9 @@ class Promocion {
     // Crear nueva promoción con nombres de columnas reales
     static async create(promocionData) {
         try {
+            const limiteUso = promocionData.limite_uso === 'una_vez' || promocionData.limite_uso === 'mensual'
+                ? promocionData.limite_uso
+                : null;
             const mapped = {
                 institucion: promocionData.institucion ?? null,
                 tipo_promocion: promocionData.tipo_promocion ?? null,
@@ -65,6 +68,8 @@ class Promocion {
                 imagen_principal: promocionData.imagen_principal ?? null,
                 imagen_secundaria: promocionData.imagen_secundaria ?? null,
                 estado: promocionData.estado ?? 'activa',
+                limite_uso: limiteUso,
+                limitar_uso: limiteUso ? 1 : (promocionData.limitar_uso == 1 || promocionData.limitar_uso === true || promocionData.limitar_uso === '1' ? 1 : 0),
             };
 
             const entries = Object.entries(mapped);

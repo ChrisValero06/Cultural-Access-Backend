@@ -108,6 +108,11 @@ router.post('/', upload.fields([
             imagenSecundariaPath = `/images/uploads/${nombreWebp}`;
         }
 
+        // Límite por tarjeta: una_vez | mensual | null
+        const limiteUsoRaw = (body.limite_uso || body.limiteUso || '').toString().trim();
+        const limite_uso = (limiteUsoRaw === 'una_vez' || limiteUsoRaw === 'mensual') ? limiteUsoRaw : null;
+        const limitar_uso = limite_uso ? 1 : 0;
+
         // Crear promoción en la base de datos
         const promocionData = {
             institucion: ineflucion,
@@ -120,7 +125,8 @@ router.post('/', upload.fields([
             imagen_principal: imagenPrincipalPath,
             imagen_secundaria: imagenSecundariaPath,
             estado,
-            limite_uso: body.limite_uso || null
+            limite_uso,
+            limitar_uso
         };
 
         const promocionDataSanitizada = Object.fromEntries(
@@ -392,8 +398,18 @@ router.put('/:id', upload.fields([
                 ? (body.fecha_fin || body.fechaFin) 
                 : existingPromo.data.fecha_fin,
           estado: body.estado !== undefined ? body.estado : existingPromo.data.estado,
-          limite_uso: body.limite_uso !== undefined ? (body.limite_uso || null) : (existingPromo.data.limite_uso || null)
         };
+
+        // Límite por tarjeta (crear/editar): una_vez | mensual | null
+        if (body.limite_uso !== undefined || body.limiteUso !== undefined || body.limitar_uso !== undefined) {
+          const limiteUsoRaw = (body.limite_uso !== undefined ? body.limite_uso : body.limiteUso);
+          const limiteNormalizado = (limiteUsoRaw === 'una_vez' || limiteUsoRaw === 'mensual') ? limiteUsoRaw : null;
+          updateData.limite_uso = limiteNormalizado;
+          updateData.limitar_uso = limiteNormalizado ? 1 : 0;
+        } else {
+          updateData.limite_uso = existingPromo.data.limite_uso || null;
+          updateData.limitar_uso = existingPromo.data.limitar_uso ? 1 : 0;
+        }
 
         // ⭐⭐ MANEJAR ELIMINACIÓN DE IMÁGENES (string vacío o null)
         // Si se envía un string vacío o null explícitamente, eliminar la imagen
