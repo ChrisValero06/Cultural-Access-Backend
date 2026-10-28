@@ -72,6 +72,25 @@ function formatearFecha(fecha) {
   return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
 
+const MAPA_FUENTES = {
+  serif: "Georgia,'Times New Roman',Times,serif",
+  sans: "'Helvetica Neue',Helvetica,Arial,sans-serif",
+  montserrat: "'Montserrat','Helvetica Neue',Helvetica,Arial,sans-serif",
+  georgia: "Georgia,'Times New Roman',Times,serif",
+  arial: "Arial,Helvetica,sans-serif",
+  times: "'Times New Roman',Times,serif",
+  verdana: "Verdana,Geneva,sans-serif",
+};
+
+/** Estilos editables del bloque editorial (tipografía / tamaño / negrita / cursiva) */
+function cssEstiloTexto(estilosBloque, clave, defaults = {}) {
+  const e = { fuente: 'serif', tamano: 14, negrita: false, cursiva: false, color: '', ...defaults, ...(estilosBloque?.[clave] || {}) };
+  const tamano = Math.min(48, Math.max(10, Number(e.tamano) || defaults.tamano || 14));
+  const font = MAPA_FUENTES[e.fuente] || MAPA_FUENTES.serif;
+  const color = /^#[0-9a-f]{3,8}$/i.test(e.color || '') ? e.color : (defaults.color || TEXTO_OSCURO);
+  return `font-family:${font};font-size:${tamano}px;font-weight:${e.negrita ? 700 : 400};font-style:${e.cursiva ? 'italic' : 'normal'};color:${color};`;
+}
+
 function boton(texto, href, color) {
   return `<a href="${esc(href)}" target="_blank" style="background-color:${color};color:#ffffff;text-decoration:none;padding:12px 26px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:inline-block;border-radius:0;font-family:${FUENTE};">${esc(texto)}</a>`;
 }
@@ -233,6 +252,8 @@ function renderEditorial(b, campana) {
   const acento = MOCK_ACENTO;
   const taupe = MOCK_TAUPE;
   const crema = MOCK_CREMA;
+  const estilos = b.estilos || {};
+  const st = (clave, defs) => cssEstiloTexto(estilos, clave, defs);
   const titulo = b.titulo || campana.titulo || 'Inspirational Blog';
   const subtitulo = b.subtitulo || 'Dreams, goals and desires';
   const intro = b.intro_caja || campana.intro_texto || '';
@@ -282,12 +303,12 @@ function renderEditorial(b, campana) {
       <table width="536" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:536px;">
         <tr>
           <td class="nl-col" width="290" valign="top" style="width:290px;">
-            <h1 style="font-family:${FUENTE_SERIF};font-weight:400;margin:0 0 6px 0;font-size:34px;line-height:1.15;color:${TEXTO_OSCURO};">${esc(titulo)}</h1>
-            <p style="font-family:${FUENTE_SERIF};font-style:italic;margin:0 0 22px 0;font-size:13px;color:${TEXTO_SUAVE};">${esc(subtitulo)}</p>
+            <h1 style="${st('titulo', { fuente: 'serif', tamano: 34, negrita: false, color: TEXTO_OSCURO })};margin:0 0 6px 0;line-height:1.15;">${esc(titulo)}</h1>
+            <p style="${st('subtitulo', { fuente: 'serif', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 22px 0;">${esc(subtitulo)}</p>
             <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${crema}" style="background-color:${crema};">
               <tr>
                 <td style="padding:22px 20px;">
-                  ${parrafos(intro, `font-family:${FUENTE_SERIF};font-size:13px;line-height:1.75;color:${TEXTO_OSCURO};`)}
+                  ${parrafos(intro, `${st('intro_caja', { fuente: 'serif', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
                   <div style="margin-top:18px;">${botonEditorial(cta1, cta1Link, acento)}</div>
                 </td>
               </tr>
@@ -330,8 +351,8 @@ function renderEditorial(b, campana) {
             ${fotoConCapa(b.imagen_2, 290, 190, 'Imagen 2', MOCK_CREMA_2, 12)}
           </td>
           <td class="nl-col" width="206" valign="middle" style="width:206px;">
-            <h2 style="font-family:${FUENTE_SERIF};font-weight:400;margin:0 0 12px 0;font-size:28px;line-height:1.15;color:${TEXTO_OSCURO};">${esc(sec2Titulo)}</h2>
-            ${parrafos(sec2Texto, `font-family:${FUENTE_SERIF};font-size:13px;line-height:1.75;color:${TEXTO_OSCURO};`)}
+            <h2 style="${st('seccion2_titulo', { fuente: 'serif', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.15;">${esc(sec2Titulo)}</h2>
+            ${parrafos(sec2Texto, `${st('seccion2_texto', { fuente: 'serif', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
             <div style="margin-top:18px;">${botonEditorial(cta2, cta2Link, acento)}</div>
           </td>
         </tr>
@@ -342,7 +363,7 @@ function renderEditorial(b, campana) {
   <!-- ═══ Zona 3: galería ═══ -->
   <tr>
     <td style="padding:44px 24px 8px 24px;background-color:#ffffff;text-align:center;">
-      <p style="font-family:${FUENTE_SERIF};margin:0 0 28px 0;font-size:13px;letter-spacing:4px;color:${TEXTO_OSCURO};">${esc(galeriaTitulo)}</p>
+      <p style="${st('galeria_titulo', { fuente: 'serif', tamano: 13, color: TEXTO_OSCURO })};margin:0 0 28px 0;letter-spacing:4px;">${esc(galeriaTitulo)}</p>
       <table width="536" cellpadding="0" cellspacing="0" border="0" align="center" style="width:100%;max-width:536px;">
         <tr>
           ${galeriaCelda(b.imagen_3, 'Imagen 3', MOCK_CREMA_2, true, false)}
@@ -356,8 +377,8 @@ function renderEditorial(b, campana) {
   <!-- ═══ Zona 4: cierre ═══ -->
   <tr>
     <td style="padding:48px 56px 40px 56px;background-color:#ffffff;text-align:center;">
-      <h2 style="font-family:${FUENTE_SERIF};font-weight:400;margin:0 0 14px 0;font-size:18px;letter-spacing:3px;color:${TEXTO_OSCURO};">${esc(cierreTitulo)}</h2>
-      ${parrafos(cierreTexto, `font-family:${FUENTE_SERIF};font-size:12px;line-height:1.8;color:${TEXTO_SUAVE};text-align:center;`)}
+      <h2 style="${st('cierre_titulo', { fuente: 'serif', tamano: 18, color: TEXTO_OSCURO })};margin:0 0 14px 0;letter-spacing:3px;">${esc(cierreTitulo)}</h2>
+      ${parrafos(cierreTexto, `${st('cierre_texto', { fuente: 'serif', tamano: 12, color: TEXTO_SUAVE })};line-height:1.8;text-align:center;`)}
     </td>
   </tr>
 
