@@ -5,8 +5,12 @@
 const SITE_URL = 'https://culturallaccess.com';
 const LOGO_URL = `${SITE_URL}/images/culturaaaaaaaaaalaccesssssslogo-04.png`;
 const LOGO_FOOTER_URL = `${SITE_URL}/images/logo%20footer.png`;
-const COLOR_DEFAULT = '#F97316'; // Naranja del proyecto CulturAll Access
-const BEIGE = '#FFF7ED'; // Naranja muy claro (beige cálido)
+const COLOR_DEFAULT = '#F97316';
+// Paleta del mockup editorial (terracota + crema)
+const COLOR_MOCKUP = '#A67C65';
+const BEIGE = '#F5E6D3';
+const TEXTO_OSCURO = '#3F3A36';
+const TEXTO_SUAVE = '#7A726A';
 const FUENTE = "'Montserrat','Helvetica Neue',Helvetica,Arial,sans-serif";
 const FUENTE_SERIF = "Georgia,'Times New Roman',Times,serif";
 
@@ -68,7 +72,16 @@ function boton(texto, href, color) {
 }
 
 function botonEditorial(texto, href, color) {
-  return `<a href="${esc(href || SITE_URL)}" target="_blank" style="background-color:${color};color:#ffffff;text-decoration:none;padding:10px 22px;font-size:12px;font-weight:600;display:inline-block;border-radius:0;font-family:${FUENTE};box-shadow:3px 3px 0 rgba(0,0,0,0.12);">${esc(texto || 'Leer más')}</a>`;
+  return `<a href="${esc(href || SITE_URL)}" target="_blank" style="background-color:${color};color:#ffffff;text-decoration:none;padding:11px 24px;font-size:12px;font-weight:600;display:inline-block;border-radius:0;font-family:${FUENTE};box-shadow:4px 4px 0 rgba(0,0,0,0.15);">${esc(texto || 'Leer más')}</a>`;
+}
+
+function hojaDecorativa(color) {
+  // Hoja simple (email-safe) entre columnas, como en el mockup
+  return `<div style="font-size:18px;line-height:1;color:${color};text-align:center;">❧</div>`;
+}
+
+function cuadroAcento(color, alinear = 'left') {
+  return `<div style="width:18px;height:18px;background-color:${color};font-size:0;line-height:0;${alinear === 'right' ? 'margin-left:auto;' : ''}">&nbsp;</div>`;
 }
 
 function fila(contenido, padding = '0 30px 26px 30px') {
@@ -172,116 +185,158 @@ function renderSeparador() {
   return fila('<div style="border-top:1px solid #e5e7eb;font-size:0;line-height:0;">&nbsp;</div>');
 }
 
-/** Diseño tipo mockup editorial (5 imágenes + textos) — acento = naranja del proyecto */
+/**
+ * Diseño editorial calcado al mockup:
+ * título+caja beige | SÁBADO+img1+NEWSLETTER+fecha
+ * img2 (fondo beige offset) | New day + CTA
+ * galería 3 cols con cuadros acento
+ * cierre + barra FOLLOW US
+ */
 function renderEditorial(b, campana, color) {
-  const acento = colorValido(color);
-  const titulo = b.titulo || campana.titulo || 'CulturAll Access';
+  // Si el color es el naranja genérico del sitio, usar terracota del mockup
+  const colorCampana = colorValido(color);
+  const acento = (colorCampana.toLowerCase() === COLOR_DEFAULT.toLowerCase()) ? COLOR_MOCKUP : colorCampana;
+  const titulo = b.titulo || campana.titulo || 'Inspirational Blog';
   const subtitulo = b.subtitulo || '';
   const intro = b.intro_caja || campana.intro_texto || '';
   const cta1 = b.cta1_texto || 'Leer más';
   const cta1Link = conUtm(b.cta1_link || SITE_URL, campana);
-  const etiquetaDia = (b.etiqueta_dia || '').toUpperCase();
+  const etiquetaDia = (b.etiqueta_dia || 'SÁBADO').toUpperCase();
   const metaLabel = (b.meta_label || 'NEWSLETTER').toUpperCase();
   const fecha = b.fecha_display || '';
-  const sec2Titulo = b.seccion2_titulo || '';
+  const sec2Titulo = b.seccion2_titulo || 'New day';
   const sec2Texto = b.seccion2_texto || '';
   const cta2 = b.cta2_texto || 'Leer más';
   const cta2Link = conUtm(b.cta2_link || SITE_URL, campana);
-  const galeriaTitulo = (b.galeria_titulo || 'ALGO ESPECIAL HOY').toUpperCase();
-  const cierreTitulo = (b.cierre_titulo || '').toUpperCase();
+  const galeriaTitulo = (b.galeria_titulo || 'SOMETHING SPECIAL TODAY').toUpperCase();
+  const cierreTitulo = (b.cierre_titulo || 'LET YOURSELF BE HAPPY').toUpperCase();
   const cierreTexto = b.cierre_texto || '';
-  const follow = (b.follow_texto || 'SÍGUENOS').toUpperCase();
+  const follow = (b.follow_texto || 'FOLLOW US').toUpperCase();
 
   const socialIcon = (href, label) => {
     if (!href) return '';
-    return `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin-left:14px;color:#ffffff;font-family:${FUENTE};font-size:12px;text-decoration:none;letter-spacing:0.5px;">${esc(label)}</a>`;
+    return `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin-left:16px;color:#ffffff;font-family:${FUENTE};font-size:11px;text-decoration:none;letter-spacing:1px;">${esc(label)}</a>`;
   };
 
-  return `
-  <tr>
-    <td style="padding:28px 24px 10px 24px;background-color:#ffffff;">
-      <!-- Zona 1: título + intro | imagen 1 (anchos fijos para clientes de correo) -->
-      <table width="552" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:552px;">
+  const galeriaCelda = (src, alt, conAcentoIzq, conAcentoDer) => `
+    <td class="nl-col" width="176" valign="top" style="width:176px;padding:6px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        ${conAcentoIzq ? `<tr><td style="padding:0 0 4px 0;">${cuadroAcento(acento, 'left')}</td></tr>` : ''}
         <tr>
-          <td class="nl-col" width="300" valign="top" style="width:300px;padding-right:12px;">
-            <h1 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 6px 0;font-size:32px;line-height:1.15;color:#1f2937;">${esc(titulo)}</h1>
-            ${subtitulo ? `<p style="font-family:${FUENTE};margin:0 0 18px 0;font-size:13px;color:#6b7280;">${esc(subtitulo)}</p>` : '<div style="height:14px;"></div>'}
+          <td style="background-color:${BEIGE};padding:8px;">
+            ${imgTag(src, 160, alt, 'object-fit:cover;')}
+          </td>
+        </tr>
+        ${conAcentoDer ? `<tr><td style="padding:4px 0 0 0;">${cuadroAcento(acento, 'right')}</td></tr>` : ''}
+      </table>
+    </td>`;
+
+  return `
+  <!-- ═══ Zona 1: cabecera mockup ═══ -->
+  <tr>
+    <td style="padding:36px 28px 8px 28px;background-color:#ffffff;">
+      <table width="544" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:544px;">
+        <tr>
+          <!-- Izquierda: título + caja beige -->
+          <td class="nl-col" width="290" valign="top" style="width:290px;padding-right:8px;">
+            <h1 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 8px 0;font-size:36px;line-height:1.1;color:${TEXTO_OSCURO};">${esc(titulo)}</h1>
+            ${subtitulo ? `<p style="font-family:${FUENTE_SERIF};font-style:italic;margin:0 0 22px 0;font-size:14px;color:${TEXTO_SUAVE};">${esc(subtitulo)}</p>` : '<div style="height:18px;"></div>'}
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BEIGE};">
               <tr>
-                <td style="padding:18px 16px;">
-                  ${parrafos(intro, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#374151;`)}
-                  <div style="margin-top:14px;">${botonEditorial(cta1, cta1Link, acento)}</div>
+                <td style="padding:22px 18px;">
+                  ${parrafos(intro, `font-family:${FUENTE_SERIF};font-size:13px;line-height:1.7;color:${TEXTO_OSCURO};`)}
+                  <div style="margin-top:16px;">${botonEditorial(cta1, cta1Link, acento)}</div>
                 </td>
               </tr>
             </table>
           </td>
-          <td class="nl-col" width="240" valign="top" style="width:240px;">
-            ${etiquetaDia ? `<div style="background-color:${acento};color:#ffffff;font-family:${FUENTE};font-size:11px;letter-spacing:2px;text-align:center;padding:8px 10px;">${esc(etiquetaDia)}</div>` : ''}
-            ${imgTag(b.imagen_1, 240, 'Imagen 1')}
-            <p style="font-family:${FUENTE_SERIF};margin:12px 0 6px 0;font-size:16px;color:#1f2937;letter-spacing:1px;">${esc(metaLabel)}</p>
-            ${fecha ? `<div style="background-color:${BEIGE};font-family:${FUENTE};font-size:12px;color:#374151;padding:8px 12px;display:inline-block;">${esc(fecha)}</div>` : ''}
+          <!-- Hoja decorativa -->
+          <td class="nl-col-hide" width="24" valign="middle" style="width:24px;padding:0 2px;">
+            ${hojaDecorativa(acento)}
+          </td>
+          <!-- Derecha: SÁBADO + imagen 1 + NEWSLETTER + fecha -->
+          <td class="nl-col" width="230" valign="top" style="width:230px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="background-color:${acento};color:#ffffff;font-family:${FUENTE};font-size:11px;letter-spacing:3px;text-align:center;padding:10px 8px;">
+                  ${esc(etiquetaDia)}
+                </td>
+              </tr>
+              <tr>
+                <td style="line-height:0;font-size:0;">
+                  ${imgTag(b.imagen_1, 230, 'Imagen 1')}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 0 0 0;">
+                  <p style="font-family:${FUENTE_SERIF};margin:0 0 8px 0;font-size:15px;letter-spacing:2px;color:${TEXTO_OSCURO};">${esc(metaLabel)}</p>
+                  ${fecha ? `<span style="background-color:${BEIGE};font-family:${FUENTE};font-size:12px;color:${TEXTO_OSCURO};padding:7px 14px;display:inline-block;">${esc(fecha)}</span>` : ''}
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
       </table>
     </td>
   </tr>
 
-  <!-- Zona 2: imagen 2 + texto -->
+  <!-- ═══ Zona 2: imagen 2 + New day ═══ -->
   <tr>
-    <td style="padding:28px 24px 10px 24px;background-color:#ffffff;">
-      <table width="552" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:552px;">
+    <td style="padding:36px 28px 8px 28px;background-color:#ffffff;">
+      <table width="544" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:544px;">
         <tr>
-          <td class="nl-col" width="320" valign="top" style="width:320px;padding-right:16px;">
-            ${imgTag(b.imagen_2, 320, 'Imagen 2')}
+          <td class="nl-col" width="310" valign="middle" style="width:310px;padding-right:18px;">
+            <!-- Fondo beige offset detrás de la imagen (como el mockup) -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="background-color:${BEIGE};padding:12px 12px 12px 0;">
+                  ${imgTag(b.imagen_2, 298, 'Imagen 2')}
+                </td>
+              </tr>
+            </table>
           </td>
-          <td class="nl-col" width="216" valign="top" style="width:216px;">
-            ${sec2Titulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 10px 0;font-size:24px;line-height:1.2;color:#1f2937;">${esc(sec2Titulo)}</h2>` : ''}
-            ${parrafos(sec2Texto, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#374151;`)}
-            <div style="margin-top:14px;">${botonEditorial(cta2, cta2Link, acento)}</div>
+          <td class="nl-col" width="216" valign="middle" style="width:216px;">
+            ${sec2Titulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 12px 0;font-size:28px;line-height:1.15;color:${TEXTO_OSCURO};">${esc(sec2Titulo)}</h2>` : ''}
+            ${parrafos(sec2Texto, `font-family:${FUENTE_SERIF};font-size:13px;line-height:1.7;color:${TEXTO_OSCURO};`)}
+            <div style="margin-top:16px;">${botonEditorial(cta2, cta2Link, acento)}</div>
           </td>
         </tr>
       </table>
     </td>
   </tr>
 
-  <!-- Zona 3: galería 3 imágenes -->
+  <!-- ═══ Zona 3: galería ═══ -->
   <tr>
-    <td style="padding:32px 24px 10px 24px;background-color:#ffffff;text-align:center;">
-      <p style="font-family:${FUENTE_SERIF};margin:0 0 20px 0;font-size:15px;letter-spacing:3px;color:#1f2937;">${esc(galeriaTitulo)}</p>
-      <table width="552" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:552px;">
+    <td style="padding:42px 28px 8px 28px;background-color:#ffffff;text-align:center;">
+      <p style="font-family:${FUENTE_SERIF};margin:0 0 24px 0;font-size:14px;letter-spacing:4px;color:${TEXTO_OSCURO};">${esc(galeriaTitulo)}</p>
+      <table width="544" cellpadding="0" cellspacing="0" border="0" align="center" style="width:100%;max-width:544px;">
         <tr>
-          <td class="nl-col" width="180" valign="top" style="width:180px;padding:4px;">
-            <div style="background-color:${BEIGE};padding:6px;">${imgTag(b.imagen_3, 168, 'Imagen 3')}</div>
-          </td>
-          <td class="nl-col" width="180" valign="top" style="width:180px;padding:4px;">
-            <div style="background-color:${acento};padding:6px;">${imgTag(b.imagen_4, 168, 'Imagen 4')}</div>
-          </td>
-          <td class="nl-col" width="180" valign="top" style="width:180px;padding:4px;">
-            <div style="background-color:${BEIGE};padding:6px;">${imgTag(b.imagen_5, 168, 'Imagen 5')}</div>
-          </td>
+          ${galeriaCelda(b.imagen_3, 'Imagen 3', true, false)}
+          ${galeriaCelda(b.imagen_4, 'Imagen 4', false, false)}
+          ${galeriaCelda(b.imagen_5, 'Imagen 5', false, true)}
         </tr>
       </table>
     </td>
   </tr>
 
-  <!-- Zona 4: cierre -->
+  <!-- ═══ Zona 4: cierre ═══ -->
   <tr>
-    <td style="padding:36px 40px 28px 40px;background-color:#ffffff;text-align:center;">
-      ${cierreTitulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 12px 0;font-size:22px;letter-spacing:2px;color:#1f2937;">${esc(cierreTitulo)}</h2>` : ''}
-      ${parrafos(cierreTexto, `font-family:${FUENTE};font-size:13px;line-height:1.65;color:#374151;text-align:center;`)}
+    <td style="padding:48px 48px 36px 48px;background-color:#ffffff;text-align:center;">
+      ${cierreTitulo ? `<h2 style="font-family:${FUENTE_SERIF};font-weight:700;margin:0 0 14px 0;font-size:20px;letter-spacing:3px;color:${TEXTO_OSCURO};">${esc(cierreTitulo)}</h2>` : ''}
+      ${parrafos(cierreTexto, `font-family:${FUENTE_SERIF};font-size:13px;line-height:1.7;color:${TEXTO_SUAVE};text-align:center;`)}
     </td>
   </tr>
 
-  <!-- Footer follow us -->
+  <!-- ═══ Footer FOLLOW US (barra del mockup) ═══ -->
   <tr>
-    <td style="background-color:${acento};padding:16px 24px;">
+    <td style="background-color:${acento};padding:18px 28px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td align="left" style="font-family:${FUENTE};font-size:12px;letter-spacing:2px;color:#ffffff;">${esc(follow)}</td>
-          <td align="right">
-            ${socialIcon(b.social_facebook, 'Facebook')}
-            ${socialIcon(b.social_x, 'X')}
-            ${socialIcon(b.social_instagram, 'Instagram')}
+          <td align="left" style="font-family:${FUENTE};font-size:12px;letter-spacing:3px;color:#ffffff;font-weight:600;">${esc(follow)}</td>
+          <td align="right" style="white-space:nowrap;">
+            ${socialIcon(b.social_facebook || 'https://www.facebook.com', 'f')}
+            ${socialIcon(b.social_x || 'https://x.com', '𝕏')}
+            ${socialIcon(b.social_instagram || 'https://www.instagram.com', '◎')}
           </td>
         </tr>
       </table>
@@ -324,8 +379,31 @@ function renderNewsletter(campana, opciones = {}) {
 
   const linkBaja = opciones.preview ? '#' : '*|UNSUB|*';
   const direccion = opciones.preview ? '' : '*|HTML:LIST_ADDRESS_HTML|*';
-  const colorBarra = color;
-  const bgBody = tieneEditorial ? '#fff7ed' : '#f3f4f6';
+  const bgBody = tieneEditorial ? '#faf7f2' : '#f3f4f6';
+  const footerInstitucional = tieneEditorial
+    ? `<tr>
+    <td align="center" style="background-color:#ffffff;padding:18px 28px 24px 28px;">
+      <p style="font-family:${FUENTE};margin:0;font-size:11px;line-height:1.5;color:#9ca3af;">
+        Recibes este correo porque te suscribiste al newsletter de CulturAll Access.<br>
+        <a href="${linkBaja}" style="color:#9ca3af;text-decoration:underline;">Darme de baja</a>
+      </p>
+      <div style="font-family:${FUENTE};font-size:10px;color:#d1d5db;margin-top:6px;">${direccion}</div>
+    </td>
+  </tr>`
+    : `<tr>
+    <td align="center" style="background-color:${color};padding:28px 30px;">
+      <img src="${LOGO_FOOTER_URL}" width="200" alt="Gobierno de Nuevo León" style="border:0;display:block;width:200px;max-width:100%;height:auto;margin:0 auto 14px auto;">
+      ${footerTexto}
+      <p style="font-family:${FUENTE};margin:10px 0 0 0;font-size:13px;font-weight:700;">
+        <a href="${SITE_URL}" target="_blank" style="color:#ffffff;text-decoration:none;">culturallaccess.com</a>
+      </p>
+      <p style="font-family:${FUENTE};margin:14px 0 0 0;font-size:11px;line-height:1.5;color:#ffffff;">
+        Recibes este correo porque te suscribiste al newsletter de CulturAll Access.<br>
+        <a href="${linkBaja}" style="color:#ffffff;text-decoration:underline;">Darme de baja</a>
+      </p>
+      <div style="font-family:${FUENTE};font-size:10px;color:#ffffff;margin-top:8px;">${direccion}</div>
+    </td>
+  </tr>`;
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -335,7 +413,6 @@ function renderNewsletter(campana, opciones = {}) {
   <meta name="x-apple-disable-message-reformatting">
   <title>${esc(campana.asunto || 'CulturAll Access')}</title>
   <style type="text/css">
-    /* Solo apilar en pantallas chicas; el correo es ~600px y no debe romper columnas */
     @media screen and (max-width: 480px) {
       .nl-outer { width: 100% !important; }
       .nl-pad { padding-left: 18px !important; padding-right: 18px !important; }
@@ -344,6 +421,7 @@ function renderNewsletter(campana, opciones = {}) {
       .nl-promo-img { display: block !important; width: 100% !important; padding: 0 0 12px 0 !important; }
       .nl-promo-img img { width: 100% !important; }
       .nl-stack, .nl-col { display: block !important; width: 100% !important; max-width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; padding-bottom: 16px !important; }
+      .nl-col-hide { display: none !important; width: 0 !important; height: 0 !important; overflow: hidden !important; }
     }
   </style>
 </head>
@@ -364,20 +442,7 @@ function renderNewsletter(campana, opciones = {}) {
   ${intro}
   ${contenido}
 
-  <tr>
-    <td align="center" style="background-color:${colorBarra};padding:28px 30px;">
-      <img src="${LOGO_FOOTER_URL}" width="200" alt="Gobierno de Nuevo León" style="border:0;display:block;width:200px;max-width:100%;height:auto;margin:0 auto 14px auto;">
-      ${footerTexto}
-      <p style="font-family:${FUENTE};margin:10px 0 0 0;font-size:13px;font-weight:700;">
-        <a href="${SITE_URL}" target="_blank" style="color:#ffffff;text-decoration:none;">culturallaccess.com</a>
-      </p>
-      <p style="font-family:${FUENTE};margin:14px 0 0 0;font-size:11px;line-height:1.5;color:#ffffff;">
-        Recibes este correo porque te suscribiste al newsletter de CulturAll Access.<br>
-        <a href="${linkBaja}" style="color:#ffffff;text-decoration:underline;">Darme de baja</a>
-      </p>
-      <div style="font-family:${FUENTE};font-size:10px;color:#ffffff;margin-top:8px;">${direccion}</div>
-    </td>
-  </tr>
+  ${footerInstitucional}
 
 </table>
 <!--[if mso]></td></tr></table><![endif]-->
