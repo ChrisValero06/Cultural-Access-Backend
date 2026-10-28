@@ -5,14 +5,20 @@
 const SITE_URL = 'https://culturallaccess.com';
 const LOGO_URL = `${SITE_URL}/images/culturaaaaaaaaaalaccesssssslogo-04.png`;
 const LOGO_FOOTER_URL = `${SITE_URL}/images/logo%20footer.png`;
-const COLOR_DEFAULT = '#F97316';
-// Paleta premium del mockup editorial (no naranja chillón: se veía “pobre”)
-const MOCK_ACENTO = '#8B6F5C';      // café / terracota botones + footer
-const MOCK_TAUPE = '#A89080';       // barra SÁBADO
-const MOCK_CREMA = '#F3E8DB';       // cajas de texto
-const MOCK_CREMA_2 = '#EAD9C8';     // capas detrás de fotos
-const TEXTO_OSCURO = '#3A322C';
-const TEXTO_SUAVE = '#8A7E74';
+const COLOR_DEFAULT = '#F97316'; // Naranja CulturAll Access (sitio)
+// Paleta editorial: siempre naranja de marca (no café del mockup viejo)
+const MOCK_ACENTO = COLOR_DEFAULT; // botones + footer + acentos
+const MOCK_TAUPE = COLOR_DEFAULT;  // barra día (mismo naranja)
+const MOCK_CREMA = '#FFF7ED';      // cajas de texto (orange-50)
+const MOCK_CREMA_2 = '#FFEDD5';    // capas detrás de fotos (orange-100)
+const TEXTO_OSCURO = '#1C1917';
+const TEXTO_SUAVE = '#78716C';
+const CAFES_VIEJOS = new Set(['#8B6F5C', '#A89080', '#8D7361', '#8D7663']);
+
+function colorMarca(color) {
+  const c = colorValido(color);
+  return CAFES_VIEJOS.has(c.toUpperCase()) ? COLOR_DEFAULT : c;
+}
 const FUENTE = "'Helvetica Neue',Helvetica,Arial,sans-serif";
 const FUENTE_SERIF = "Georgia,'Times New Roman',Times,serif";
 // aliases usados por bloques clásicos
@@ -245,11 +251,11 @@ function renderSeparador() {
 }
 
 /**
- * Réplica premium del mockup editorial (collage crema/café).
- * Ignora naranja chillón del sitio: usa paleta del mockup para no verse “pobre”.
+ * Réplica del mockup editorial con naranja CulturAll Access.
+ * Botones / barra / cuadros de acento: siempre naranja de marca.
  */
 function renderEditorial(b, campana) {
-  const acento = MOCK_ACENTO;
+  const acento = colorMarca(campana.color_primario);
   const taupe = MOCK_TAUPE;
   const crema = MOCK_CREMA;
   const estilos = b.estilos || {};
@@ -409,9 +415,9 @@ function renderBloque(b, campana, color) {
 
 // opciones.preview: reemplaza los merge tags de Mailchimp (*|UNSUB|*, etc.) para la vista previa
 function renderNewsletter(campana, opciones = {}) {
-  const color = colorValido(campana.color_primario);
   const bloques = Array.isArray(campana.bloques) ? campana.bloques : [];
   const tieneEditorial = bloques.some((b) => b?.tipo === 'editorial');
+  const color = tieneEditorial ? colorMarca(campana.color_primario) : colorValido(campana.color_primario);
   const portadas = bloques.filter((b) => b?.tipo === 'portada').map(renderPortada).join('');
   const contenido = bloques
     .filter((b) => b?.tipo !== 'portada')
@@ -430,7 +436,7 @@ function renderNewsletter(campana, opciones = {}) {
 
   const linkBaja = opciones.preview ? '#' : '*|UNSUB|*';
   const direccion = opciones.preview ? '' : '*|HTML:LIST_ADDRESS_HTML|*';
-  const bgBody = tieneEditorial ? '#F7F3EE' : '#f3f4f6';
+  const bgBody = tieneEditorial ? '#FFF7ED' : '#f3f4f6';
   const footerInstitucional = tieneEditorial
     ? `<tr>
     <td align="center" style="background-color:#ffffff;padding:18px 28px 24px 28px;">
