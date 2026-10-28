@@ -138,7 +138,20 @@ function directorioUploads() {
 }
 
 // POST /imagenes — guarda la imagen en el sitio. Mailchimp la toma al enviar la campaña.
-router.post('/imagenes', soloAdmin, upload.single('imagen'), async (req, res) => {
+router.post('/imagenes', soloAdmin, (req, res, next) => {
+    upload.single('imagen')(req, res, (err) => {
+        if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({
+                success: false,
+                error: 'La imagen es pesada. Máximo 10 MB (mejor menos de 2 MB).',
+            });
+        }
+        if (err) {
+            return res.status(400).json({ success: false, error: err.message || 'Error al recibir la imagen' });
+        }
+        next();
+    });
+}, async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ success: false, error: 'No se recibió ninguna imagen' });
         const dir = directorioUploads();
