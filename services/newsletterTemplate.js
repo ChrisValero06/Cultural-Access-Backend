@@ -449,22 +449,24 @@ function renderEditorial(b, campana) {
     </td>
   </tr>
 
-  <!-- ═══ FOLLOW US + logos institucionales (misma franja naranja) ═══ -->
+  <!-- ═══ FOLLOW US + logos institucionales (misma franja naranja, 1 fila) ═══ -->
   <tr>
-    <td bgcolor="${acento}" style="background-color:${acento};padding:18px 24px 22px 24px;text-align:center;">
-      <p style="font-family:${FUENTE};margin:0 0 10px 0;font-size:12px;letter-spacing:3px;color:#ffffff;font-weight:600;">${esc(follow)}</p>
-      <div>
-        ${socialIcon(b.social_facebook || 'https://www.facebook.com', 'Facebook')}
-        ${socialIcon(b.social_x || 'https://x.com', 'X')}
-        ${socialIcon(b.social_instagram || 'https://www.instagram.com', 'Instagram')}
-      </div>
-      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:18px auto 0 auto;">
+    <td bgcolor="${acento}" style="background-color:${acento};padding:18px 16px 20px 16px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
         <tr>
-          <td align="center" valign="middle" style="padding:0 14px 0 0;">
-            <img src="${LOGO_CULTURA_NL}" width="180" alt="Cultura Nuevo León" style="border:0;display:block;width:180px;max-width:100%;height:auto;">
+          <td width="33%" align="left" valign="middle" style="width:33%;padding:0 8px 0 0;">
+            <img src="${LOGO_CULTURA_NL}" width="160" alt="Cultura Nuevo León" style="border:0;display:block;width:160px;max-width:100%;height:auto;">
           </td>
-          <td align="center" valign="middle" style="padding:0 0 0 14px;">
-            <img src="${LOGO_NL_DERECHO}" width="64" alt="Gobierno de Nuevo León" style="border:0;display:block;width:64px;max-width:100%;height:auto;">
+          <td width="34%" align="center" valign="middle" style="width:34%;padding:0 8px;text-align:center;">
+            <p style="font-family:${FUENTE};margin:0 0 8px 0;font-size:12px;letter-spacing:3px;color:#ffffff;font-weight:600;text-align:center;">${esc(follow)}</p>
+            <div style="text-align:center;">
+              ${socialIcon(b.social_facebook || 'https://www.facebook.com', 'Facebook')}
+              ${socialIcon(b.social_x || 'https://x.com', 'X')}
+              ${socialIcon(b.social_instagram || 'https://www.instagram.com', 'Instagram')}
+            </div>
+          </td>
+          <td width="33%" align="right" valign="middle" style="width:33%;padding:0 0 0 8px;">
+            <img src="${LOGO_NL_DERECHO}" width="64" alt="Gobierno de Nuevo León" style="border:0;display:block;width:64px;max-width:100%;height:auto;margin-left:auto;">
           </td>
         </tr>
       </table>
