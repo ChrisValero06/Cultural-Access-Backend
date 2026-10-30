@@ -20,6 +20,11 @@ for (const envPath of envPaths) {
     }
 }
 
+// Credenciales de redención con fallback a las genéricas
+const emailUserRedencion = process.env.EMAIL_USER_REDENCION || process.env.EMAIL_USER;
+const emailPassRedencion = process.env.EMAIL_PASS_REDENCION || process.env.EMAIL_PASS;
+const emailFromRedencion = process.env.EMAIL_FROM_REDENCION || emailUserRedencion;
+
 // Configuración del transporter de Nodemailer con opciones mejoradas
 const emailPort = parseInt(process.env.EMAIL_PORT || '465');
 const isSecurePort = emailPort === 465 || emailPort === 994; // Puertos SSL/TLS
@@ -29,8 +34,8 @@ const transporter = nodemailer.createTransport({
     port: emailPort,
     secure: isSecurePort || process.env.EMAIL_SECURE === 'true', // true para 465 (SSL), false para 587 (STARTTLS)
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        user: emailUserRedencion,
+        pass: emailPassRedencion
     },
     tls: {
         rejectUnauthorized: false, // Para desarrollo/testing con certificados autofirmados
@@ -47,11 +52,12 @@ const transporter = nodemailer.createTransport({
     rateLimit: 5
 });
 
-console.log('📧 Configuración SMTP:');
+console.log('📧 Configuración SMTP (redención):');
 console.log('   Host:', process.env.EMAIL_HOST);
 console.log('   Port:', emailPort);
 console.log('   Secure:', isSecurePort || process.env.EMAIL_SECURE === 'true');
-console.log('   User:', process.env.EMAIL_USER);
+console.log('   User:', emailUserRedencion);
+console.log('   Credenciales:', process.env.EMAIL_USER_REDENCION ? 'EMAIL_USER_REDENCION' : 'EMAIL_USER (fallback)');
 
 /**
  * Función para enviar correo de redención
@@ -265,7 +271,7 @@ Fecha de envío: ${new Date().toLocaleString('es-MX')}
 
         // Configurar opciones del correo
         const mailOptions = {
-            from: `"Cultural Access" <${process.env.EMAIL_USER}>`,
+            from: `"Cultural Access" <${emailFromRedencion}>`,
             to: destinatarios,
             subject: `🎫 Nueva Redención - ${data.institucion || 'Cultural Access'}`,
             html: htmlContent,
