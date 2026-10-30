@@ -327,6 +327,7 @@ function renderEditorial(b, campana) {
   const metaLabel = (b.meta_label || 'NEWSLETTER').toUpperCase();
   const fecha = b.fecha_display || '';
   const sec2Titulo = b.seccion2_titulo || 'New day';
+  const sec2Subtitulo = b.seccion2_subtitulo || '';
   const sec2Texto = b.seccion2_texto || '';
   const cta2 = b.cta2_texto || 'Leer más';
   const cta2Link = conUtm(b.cta2_link || SITE_URL, campana);
@@ -439,7 +440,8 @@ function renderEditorial(b, campana) {
             ${fotoConCapa(b.imagen_2, 290, 190, 'Imagen 2', MOCK_CREMA_2, 12)}
           </td>
           <td class="nl-col" width="206" valign="middle" style="width:206px;">
-            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.15;">${escConFormato(sec2Titulo)}</h2>
+            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 6px 0;line-height:1.15;">${escConFormato(sec2Titulo)}</h2>
+            ${sec2Subtitulo ? `<p style="${st('seccion2_subtitulo', { fuente: 'montserrat', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 12px 0;">${escConFormato(sec2Subtitulo)}</p>` : ''}
             ${parrafos(sec2Texto, `${st('seccion2_texto', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
             <div style="margin-top:18px;">${botonEditorial(cta2, cta2Link, acento)}</div>
           </td>
