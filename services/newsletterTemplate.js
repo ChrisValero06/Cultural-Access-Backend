@@ -429,19 +429,19 @@ function renderEditorial(b, campana) {
     </td>
   </tr>
 
-  <!-- ═══ Zona 2: foto horizontal + New day ═══ -->
+  <!-- ═══ Zona 2: foto horizontal + título a ancho de columna ═══ -->
   <tr>
-    <td style="padding:36px 32px 10px 32px;background-color:#ffffff;">
-      <table width="536" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:536px;">
+    <td style="padding:36px 28px 10px 28px;background-color:#ffffff;">
+      <table width="544" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:544px;">
         <tr>
-          <td class="nl-col" width="310" valign="middle" style="width:310px;padding-right:20px;">
-            ${fotoConCapa(b.imagen_2, 290, 190, 'Imagen 2', MOCK_CREMA_2, 12)}
+          <td class="nl-col" width="268" valign="middle" style="width:268px;padding-right:12px;">
+            ${fotoConCapa(b.imagen_2, 248, 162, 'Imagen 2', MOCK_CREMA_2, 10)}
           </td>
-          <td class="nl-col" width="206" valign="middle" style="width:206px;">
-            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.15;">${escConFormato(sec2Titulo)}</h2>
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${crema2}" style="background-color:${crema2};">
+          <td class="nl-col" width="264" valign="middle" style="width:264px;">
+            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.2;display:block;width:100%;max-width:100%;box-sizing:border-box;">${escConFormato(sec2Titulo)}</h2>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${crema2}" style="background-color:${crema2};width:100%;">
               <tr>
-                <td style="padding:22px 20px;">
+                <td style="padding:18px 14px;">
                   ${sec2Subtitulo ? `<p style="${st('seccion2_subtitulo', { fuente: 'montserrat', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 12px 0;">${escConFormato(sec2Subtitulo)}</p>` : ''}
                   ${parrafos(sec2Texto, `${st('seccion2_texto', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
                   <div style="margin-top:18px;">${botonEditorial(cta2, cta2Link, acento)}</div>
