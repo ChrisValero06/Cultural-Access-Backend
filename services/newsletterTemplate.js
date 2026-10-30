@@ -330,8 +330,6 @@ function renderEditorial(b, campana) {
   const cta1 = b.cta1_texto || 'Leer más';
   const cta1Link = conUtm(b.cta1_link || SITE_URL, campana);
   const etiquetaDia = (b.etiqueta_dia || 'SATURDAY').toUpperCase();
-  const metaLabel = (b.meta_label || 'NEWSLETTER').toUpperCase();
-  const fecha = b.fecha_display || '';
   const sec2Titulo = b.seccion2_titulo || 'New day';
   const sec2Subtitulo = b.seccion2_subtitulo || '';
   const sec2Texto = b.seccion2_texto || '';
@@ -422,12 +420,6 @@ function renderEditorial(b, campana) {
               <tr>
                 <td style="line-height:0;font-size:0;padding:0;">
                   ${imgCover(b.imagen_1, 218, 218, 'Imagen 1')}
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:16px 0 0 0;">
-                  <p style="font-family:${FUENTE_SERIF};margin:0 0 8px 0;font-size:14px;letter-spacing:2px;color:${TEXTO_OSCURO};">${esc(metaLabel)}</p>
-                  ${fecha ? `<span style="background-color:${crema};font-family:${FUENTE};font-size:12px;color:${TEXTO_OSCURO};padding:7px 14px;display:inline-block;">${esc(fecha)}</span>` : ''}
                 </td>
               </tr>
             </table>
