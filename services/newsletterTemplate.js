@@ -327,8 +327,10 @@ function renderEditorial(b, campana) {
   const cierreTexto = b.cierre_texto || '';
   const follow = (b.follow_texto || 'FOLLOW US').toUpperCase();
 
-  const socialIcon = (href, label) => `
-    <a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 8px;color:#ffffff;font-family:${FUENTE};font-size:12px;text-decoration:none;letter-spacing:0.5px;">${esc(label)}</a>`;
+  const socialIcon = (href, label, iconSrc) => `
+    <a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 10px;text-decoration:none;line-height:0;vertical-align:middle;">
+      <img src="${esc(iconSrc)}" width="26" height="26" alt="${esc(label)}" style="border:0;display:block;width:26px;height:26px;">
+    </a>`;
 
   // Franja naranja: solo wordmark CulturAll Access en blanco, centrado
   const franjaGobierno = `
@@ -459,10 +461,10 @@ function renderEditorial(b, campana) {
           </td>
           <td width="34%" align="center" valign="middle" style="width:34%;padding:0 8px;text-align:center;">
             <p style="font-family:${FUENTE};margin:0 0 8px 0;font-size:12px;letter-spacing:3px;color:#ffffff;font-weight:600;text-align:center;">${esc(follow)}</p>
-            <div style="text-align:center;">
-              ${socialIcon(b.social_facebook || 'https://www.facebook.com', 'Facebook')}
-              ${socialIcon(b.social_x || 'https://x.com', 'X')}
-              ${socialIcon(b.social_instagram || 'https://www.instagram.com', 'Instagram')}
+            <div style="text-align:center;line-height:0;">
+              ${socialIcon(b.social_facebook || 'https://www.facebook.com', 'Facebook', `${SITE_URL}/images/icon-facebook.png`)}
+              ${socialIcon(b.social_x || 'https://x.com', 'X', `${SITE_URL}/images/icon-x.png`)}
+              ${socialIcon(b.social_instagram || 'https://www.instagram.com', 'Instagram', `${SITE_URL}/images/icon-instagram.png`)}
             </div>
           </td>
           <td width="33%" align="right" valign="middle" style="width:33%;padding:0 0 0 8px;">
