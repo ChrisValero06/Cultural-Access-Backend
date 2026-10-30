@@ -63,18 +63,28 @@ const fs = require('fs');
       if (!tipo_promocion) return { ok: true };
 
       const db = require('../db');
+      // Límite: leer config aunque la promo esté inactiva/vencida.
+      // Preferir filas con límite configurado (limite_uso o limitar_uso=1).
       const [promos] = await db.execute(
-          `SELECT limite_uso, limitar_uso FROM promociones
+          `SELECT limite_uso, limitar_uso, estado, fecha_fin FROM promociones
            WHERE LOWER(TRIM(institucion)) = LOWER(TRIM(?))
              AND LOWER(TRIM(tipo_promocion)) = LOWER(TRIM(?))
-             AND estado = 'activa'
-             AND (fecha_fin IS NULL OR fecha_fin >= CURDATE())
-           ORDER BY fecha_creacion DESC
+           ORDER BY
+             CASE
+               WHEN limite_uso IN ('una_vez', 'mensual') THEN 0
+               WHEN limitar_uso = 1 THEN 1
+               ELSE 2
+             END,
+             fecha_creacion DESC
            LIMIT 1`,
           [institucion, tipo_promocion]
       );
 
-      if (!promos.length) return { ok: true };
+      if (!promos.length) {
+          // Tipo en catálogo sin fila en promociones ⇒ no hay tope configurado
+          log('⚠️ Sin promo en BD para límite: ' + JSON.stringify({ institucion, tipo_promocion }));
+          return { ok: true };
+      }
 
       const promo = promos[0];
       const limiteUso = (promo.limite_uso || '').toString().toLowerCase().trim();
@@ -83,7 +93,10 @@ const fs = require('fs');
           limiteUso === 'mensual' ||
           (!limiteUso && (promo.limitar_uso == 1 || promo.limitar_uso === true || promo.limitar_uso === '1'));
 
-      if (!tieneLimiteUnaVez && !tieneLimiteMensual) return { ok: true };
+      if (!tieneLimiteUnaVez && !tieneLimiteMensual) {
+          log('⚠️ Promo sin límite (limite_uso/limitar_uso vacíos): ' + JSON.stringify({ institucion, tipo_promocion, limite_uso: promo.limite_uso, limitar_uso: promo.limitar_uso }));
+          return { ok: true };
+      }
 
       const numeroNorm = normalizarTarjeta(numero_tarjeta);
       const [registros] = await db.execute(

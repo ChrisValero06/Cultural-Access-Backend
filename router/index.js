@@ -17,6 +17,8 @@
       app.use('/api/usuario', usuariosRouter);
       app.use('/api/promociones', promocionesRouter);
       app.use('/api/controlacceso', controlAccesoRouter);
+      // Alias con guion (legado); mismo router con check de límite
+      app.use('/api/control-acceso', controlAccesoRouter);
       app.use('/api/instituciones', institucionesRouter);
       app.use('/api/tipos-promocion', tiposPromocionRouter);
       app.use('/api/auth', authRouter);

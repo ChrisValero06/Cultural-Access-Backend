@@ -101,11 +101,6 @@ app.delete('/api/tarjetas-baja/:numero', async (req, res) => {
 // Configurar rutas principales
 configureRoutes(app);
 
-// Importar controladores
-const ControlAcceso = require('./models/ControlAcceso');
-const Usuario = require('./models/Usuario');
-
-
 // ========== INICIO: Rutas de configuración (textos promociones) ==========
 const CLAVE_TEXTOS = 'textos_promociones';
 const DEFAULTS_TEXTOS = { titulo: 'PROMOCIONES VIGENTES - FEBRERO', subtitulo: 'Presentando tarjeta y sujetas a disponibilidad' };
@@ -164,34 +159,7 @@ app.put('/api/config/textos-promociones', async (req, res) => {
   }
 });
 
-// Rutas de Control de Acceso
-app.get('/api/control-acceso', async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 100;
-    const offset = parseInt(req.query.offset) || 0;
-    const result = await ControlAcceso.getAll(limit, offset);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Error al obtener registros de acceso: ' + error.message });
-  }
-});
-
-app.post('/api/control-acceso', async (req, res) => {
-  try {
-    const { institucion, numero_tarjeta, fecha, estado } = req.body;
-
-    if (!institucion || !numero_tarjeta) {
-      return res.status(400).json({ success: false, error: 'Institución y número de tarjeta son obligatorios' });
-    }
-
-    const accesoData = { institucion, numero_tarjeta, fecha, estado };
-    const result = await ControlAcceso.create(accesoData);
-
-    res.json({ success: true, message: 'Registro de acceso creado exitosamente', id: result.id });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Error al crear registro de acceso: ' + error.message });
-  }
-});
+// control-acceso: montado en router/index.js (mismo check de límite que /api/controlacceso)
 
 // Rutas de diagnóstico y salud
 app.get('/api/health', (req, res) => {
