@@ -5,7 +5,8 @@
 const SITE_URL = 'https://culturallaccess.com';
 const LOGO_URL = `${SITE_URL}/images/logo-culturall-access-white.png`;
 const LOGO_FOOTER_URL = `${SITE_URL}/images/logo%20footer.png`;
-const LOGO_NL_ESCUDO = `${SITE_URL}/images/logo-nl-escudo.png`;
+const LOGO_CULTURA_NL = `${SITE_URL}/images/LogoIzquiero.png`;
+const LOGO_NL_DERECHO = `${SITE_URL}/images/LogoDerecho.png`;
 const COLOR_DEFAULT = '#F97316'; // Naranja CulturAll Access (sitio)
 // Paleta editorial: siempre naranja de marca (no café del mockup viejo)
 const MOCK_ACENTO = COLOR_DEFAULT; // botones + footer + acentos
@@ -329,22 +330,13 @@ function renderEditorial(b, campana) {
   const socialIcon = (href, label) => `
     <a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 8px;color:#ffffff;font-family:${FUENTE};font-size:12px;text-decoration:none;letter-spacing:0.5px;">${esc(label)}</a>`;
 
-  // Franja naranja: escudo NL + wordmark (PNG con fondo negro opaco = placas negras)
+  // Franja naranja: solo wordmark CulturAll Access en blanco, centrado
   const franjaGobierno = `
   <tr>
-    <td bgcolor="${acento}" style="background-color:${acento};padding:16px 24px;">
-      <table align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
-        <tr>
-          <td align="center" valign="middle" style="padding:0 10px 0 0;">
-            <img src="${LOGO_NL_ESCUDO}" width="56" alt="Gobierno de Nuevo León" style="border:0;display:block;width:56px;max-width:100%;height:auto;">
-          </td>
-          <td align="center" valign="middle" style="padding:0 0 0 10px;">
-            <a href="${SITE_URL}" target="_blank" style="text-decoration:none;">
-              <img src="${LOGO_URL}" width="300" alt="CulturAll Access" style="border:0;display:block;width:300px;max-width:100%;height:auto;">
-            </a>
-          </td>
-        </tr>
-      </table>
+    <td bgcolor="${acento}" align="center" style="background-color:${acento};padding:18px 24px;text-align:center;">
+      <a href="${SITE_URL}" target="_blank" style="text-decoration:none;">
+        <img src="${LOGO_URL}" width="280" alt="CulturAll Access" style="border:0;display:inline-block;width:280px;max-width:100%;height:auto;">
+      </a>
     </td>
   </tr>`;
 
@@ -508,7 +500,21 @@ function renderNewsletter(campana, opciones = {}) {
   const bgBody = tieneEditorial ? '#FFF7ED' : '#f3f4f6';
   const footerInstitucional = tieneEditorial
     ? `<tr>
-    <td align="center" style="background-color:#ffffff;padding:18px 28px 24px 28px;">
+    <td align="center" style="background-color:#ffffff;padding:22px 24px 10px 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:520px;margin:0 auto;">
+        <tr>
+          <td align="left" valign="middle" width="50%" style="width:50%;padding:0 12px 0 0;">
+            <img src="${LOGO_CULTURA_NL}" width="200" alt="Cultura Nuevo León" style="border:0;display:block;width:200px;max-width:100%;height:auto;">
+          </td>
+          <td align="right" valign="middle" width="50%" style="width:50%;padding:0 0 0 12px;">
+            <img src="${LOGO_NL_DERECHO}" width="72" alt="Gobierno de Nuevo León" style="border:0;display:inline-block;width:72px;max-width:100%;height:auto;">
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" style="background-color:#ffffff;padding:14px 28px 24px 28px;">
       <p style="font-family:${FUENTE};margin:0;font-size:11px;line-height:1.5;color:#9ca3af;">
         Recibes este correo porque te suscribiste al newsletter de CulturAll Access.<br>
         <a href="${linkBaja}" style="color:#9ca3af;text-decoration:underline;">Darme de baja</a>
