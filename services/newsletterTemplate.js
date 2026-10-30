@@ -78,23 +78,68 @@ function formatearFecha(fecha) {
   return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
 
+const FUENTE_MONTSERRAT = "'Montserrat','Helvetica Neue',Helvetica,Arial,sans-serif";
+const FUENTE_POPPINS = "'Poppins','Helvetica Neue',Helvetica,Arial,sans-serif";
+
+/** family + peso base (Montserrat del sitio + Poppins solo newsletter) */
 const MAPA_FUENTES = {
-  serif: "Georgia,'Times New Roman',Times,serif",
-  sans: "'Helvetica Neue',Helvetica,Arial,sans-serif",
-  montserrat: "'Montserrat','Helvetica Neue',Helvetica,Arial,sans-serif",
-  georgia: "Georgia,'Times New Roman',Times,serif",
-  arial: "Arial,Helvetica,sans-serif",
-  times: "'Times New Roman',Times,serif",
-  verdana: "Verdana,Geneva,sans-serif",
+  serif: { family: "Georgia,'Times New Roman',Times,serif", weight: 400 },
+  sans: { family: "'Helvetica Neue',Helvetica,Arial,sans-serif", weight: 400 },
+  'montserrat-thin': { family: FUENTE_MONTSERRAT, weight: 100 },
+  'montserrat-extralight': { family: FUENTE_MONTSERRAT, weight: 200 },
+  'montserrat-light': { family: FUENTE_MONTSERRAT, weight: 300 },
+  montserrat: { family: FUENTE_MONTSERRAT, weight: 400 },
+  'montserrat-medium': { family: FUENTE_MONTSERRAT, weight: 500 },
+  'montserrat-semibold': { family: FUENTE_MONTSERRAT, weight: 600 },
+  'montserrat-bold': { family: FUENTE_MONTSERRAT, weight: 700 },
+  'montserrat-extrabold': { family: FUENTE_MONTSERRAT, weight: 800 },
+  'montserrat-black': { family: FUENTE_MONTSERRAT, weight: 900 },
+  'poppins-thin': { family: FUENTE_POPPINS, weight: 100 },
+  'poppins-extralight': { family: FUENTE_POPPINS, weight: 200 },
+  'poppins-light': { family: FUENTE_POPPINS, weight: 300 },
+  poppins: { family: FUENTE_POPPINS, weight: 400 },
+  'poppins-medium': { family: FUENTE_POPPINS, weight: 500 },
+  'poppins-semibold': { family: FUENTE_POPPINS, weight: 600 },
+  'poppins-bold': { family: FUENTE_POPPINS, weight: 700 },
+  'poppins-extrabold': { family: FUENTE_POPPINS, weight: 800 },
+  'poppins-black': { family: FUENTE_POPPINS, weight: 900 },
+  georgia: { family: "Georgia,'Times New Roman',Times,serif", weight: 400 },
+  arial: { family: 'Arial,Helvetica,sans-serif', weight: 400 },
+  times: { family: "'Times New Roman',Times,serif", weight: 400 },
+  verdana: { family: 'Verdana,Geneva,sans-serif', weight: 400 },
 };
+
+/** @font-face desde URLs estables /fonts (Montserrat + Poppins) */
+function cssFontFaceNewsletter() {
+  const pesos = [
+    [100, 'Thin', 'ThinItalic'],
+    [200, 'ExtraLight', 'ExtraLightItalic'],
+    [300, 'Light', 'LightItalic'],
+    [400, 'Regular', 'Italic'],
+    [500, 'Medium', 'MediumItalic'],
+    [600, 'SemiBold', 'SemiBoldItalic'],
+    [700, 'Bold', 'BoldItalic'],
+    [800, 'ExtraBold', 'ExtraBoldItalic'],
+    [900, 'Black', 'BlackItalic'],
+  ];
+  const bloques = [];
+  for (const [w, normal, italic] of pesos) {
+    bloques.push(`@font-face{font-family:'Montserrat';src:url('${SITE_URL}/fonts/Montserrat-${normal}.otf') format('opentype');font-weight:${w};font-style:normal;font-display:swap;}`);
+    bloques.push(`@font-face{font-family:'Montserrat';src:url('${SITE_URL}/fonts/Montserrat-${italic}.otf') format('opentype');font-weight:${w};font-style:italic;font-display:swap;}`);
+    bloques.push(`@font-face{font-family:'Poppins';src:url('${SITE_URL}/fonts/Poppins-${normal}.otf') format('opentype');font-weight:${w};font-style:normal;font-display:swap;}`);
+    bloques.push(`@font-face{font-family:'Poppins';src:url('${SITE_URL}/fonts/Poppins-${italic}.otf') format('opentype');font-weight:${w};font-style:italic;font-display:swap;}`);
+  }
+  return bloques.join('');
+}
 
 /** Estilos editables del bloque editorial (tipografía / tamaño / negrita / cursiva) */
 function cssEstiloTexto(estilosBloque, clave, defaults = {}) {
   const e = { fuente: 'serif', tamano: 14, negrita: false, cursiva: false, color: '', ...defaults, ...(estilosBloque?.[clave] || {}) };
   const tamano = Math.min(48, Math.max(10, Number(e.tamano) || defaults.tamano || 14));
-  const font = MAPA_FUENTES[e.fuente] || MAPA_FUENTES.serif;
+  const meta = MAPA_FUENTES[e.fuente] || MAPA_FUENTES.serif;
+  const weight = e.negrita ? Math.max(meta.weight, 700) : meta.weight;
   const color = /^#[0-9a-f]{3,8}$/i.test(e.color || '') ? e.color : (defaults.color || TEXTO_OSCURO);
-  return `font-family:${font};font-size:${tamano}px;font-weight:${e.negrita ? 700 : 400};font-style:${e.cursiva ? 'italic' : 'normal'};color:${color};`;
+  return `font-family:${meta.family};font-size:${tamano}px;font-weight:${weight};font-style:${e.cursiva ? 'italic' : 'normal'};color:${color};`;
 }
 
 function boton(texto, href, color) {
@@ -470,6 +515,7 @@ function renderNewsletter(campana, opciones = {}) {
   <meta name="x-apple-disable-message-reformatting">
   <title>${esc(campana.asunto || 'CulturAll Access')}</title>
   <style type="text/css">
+    ${cssFontFaceNewsletter()}
     @media screen and (max-width: 480px) {
       .nl-outer { width: 100% !important; }
       .nl-pad { padding-left: 18px !important; padding-right: 18px !important; }
