@@ -458,13 +458,13 @@ function renderEditorial(b, campana) {
         ${socialIcon(b.social_x || 'https://x.com', 'X')}
         ${socialIcon(b.social_instagram || 'https://www.instagram.com', 'Instagram')}
       </div>
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:420px;margin:18px auto 0 auto;">
+      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:18px auto 0 auto;">
         <tr>
-          <td align="left" valign="middle" width="70%" style="width:70%;padding:0 10px 0 0;">
+          <td align="center" valign="middle" style="padding:0 14px 0 0;">
             <img src="${LOGO_CULTURA_NL}" width="180" alt="Cultura Nuevo León" style="border:0;display:block;width:180px;max-width:100%;height:auto;">
           </td>
-          <td align="right" valign="middle" width="30%" style="width:30%;padding:0 0 0 10px;">
-            <img src="${LOGO_NL_DERECHO}" width="64" alt="Gobierno de Nuevo León" style="border:0;display:inline-block;width:64px;max-width:100%;height:auto;">
+          <td align="center" valign="middle" style="padding:0 0 0 14px;">
+            <img src="${LOGO_NL_DERECHO}" width="64" alt="Gobierno de Nuevo León" style="border:0;display:block;width:64px;max-width:100%;height:auto;">
           </td>
         </tr>
       </table>
