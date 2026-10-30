@@ -3,10 +3,9 @@
 // Solo tablas y estilos inline: Gmail y Outlook ignoran CSS externo y flexbox.
 
 const SITE_URL = 'https://culturallaccess.com';
-const LOGO_URL = `${SITE_URL}/images/culturaaaaaaaaaalaccesssssslogo-04.png`;
+const LOGO_URL = `${SITE_URL}/images/logo-culturall-access-white.png`;
 const LOGO_FOOTER_URL = `${SITE_URL}/images/logo%20footer.png`;
-const LOGO_GOB_IZQ = `${SITE_URL}/images/LogoIzquiero.png`;
-const LOGO_GOB_DER = `${SITE_URL}/images/LogoDerecho.png`;
+const LOGO_NL_ESCUDO = `${SITE_URL}/images/logo-nl-escudo.png`;
 const COLOR_DEFAULT = '#F97316'; // Naranja CulturAll Access (sitio)
 // Paleta editorial: siempre naranja de marca (no café del mockup viejo)
 const MOCK_ACENTO = COLOR_DEFAULT; // botones + footer + acentos
@@ -330,22 +329,19 @@ function renderEditorial(b, campana) {
   const socialIcon = (href, label) => `
     <a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 8px;color:#ffffff;font-family:${FUENTE};font-size:12px;text-decoration:none;letter-spacing:0.5px;">${esc(label)}</a>`;
 
-  // Franja naranja institucional (logos gobierno + CulturAll Access)
+  // Franja naranja: escudo NL + wordmark (PNG con fondo negro opaco = placas negras)
   const franjaGobierno = `
   <tr>
-    <td bgcolor="${acento}" style="background-color:${acento};padding:14px 20px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <td bgcolor="${acento}" style="background-color:${acento};padding:16px 24px;">
+      <table align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
         <tr>
-          <td width="28%" align="left" valign="middle" style="width:28%;">
-            <img src="${LOGO_GOB_IZQ}" width="110" alt="Cultura NL" style="border:0;display:block;width:110px;max-width:100%;height:auto;">
+          <td align="center" valign="middle" style="padding:0 10px 0 0;">
+            <img src="${LOGO_NL_ESCUDO}" width="56" alt="Gobierno de Nuevo León" style="border:0;display:block;width:56px;max-width:100%;height:auto;">
           </td>
-          <td width="44%" align="center" valign="middle" style="width:44%;padding:0 8px;">
+          <td align="center" valign="middle" style="padding:0 0 0 10px;">
             <a href="${SITE_URL}" target="_blank" style="text-decoration:none;">
-              <img src="${LOGO_URL}" width="200" alt="CulturAll Access" style="border:0;display:block;width:200px;max-width:100%;height:auto;margin:0 auto;">
+              <img src="${LOGO_URL}" width="300" alt="CulturAll Access" style="border:0;display:block;width:300px;max-width:100%;height:auto;">
             </a>
-          </td>
-          <td width="28%" align="right" valign="middle" style="width:28%;">
-            <img src="${LOGO_GOB_DER}" width="52" alt="Gobierno de Nuevo León" style="border:0;display:block;width:52px;max-width:100%;height:auto;margin-left:auto;">
           </td>
         </tr>
       </table>
