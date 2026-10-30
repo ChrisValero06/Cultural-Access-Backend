@@ -83,10 +83,8 @@ function formatearFecha(fecha) {
 const FUENTE_MONTSERRAT = "'Montserrat','Helvetica Neue',Helvetica,Arial,sans-serif";
 const FUENTE_POPPINS = "'Poppins','Helvetica Neue',Helvetica,Arial,sans-serif";
 
-/** family + peso base (Montserrat del sitio + Poppins solo newsletter) */
+/** family + peso base (solo Montserrat y Poppins en el editor) */
 const MAPA_FUENTES = {
-  serif: { family: "Georgia,'Times New Roman',Times,serif", weight: 400 },
-  sans: { family: "'Helvetica Neue',Helvetica,Arial,sans-serif", weight: 400 },
   'montserrat-thin': { family: FUENTE_MONTSERRAT, weight: 100 },
   'montserrat-extralight': { family: FUENTE_MONTSERRAT, weight: 200 },
   'montserrat-light': { family: FUENTE_MONTSERRAT, weight: 300 },
@@ -105,10 +103,6 @@ const MAPA_FUENTES = {
   'poppins-bold': { family: FUENTE_POPPINS, weight: 700 },
   'poppins-extrabold': { family: FUENTE_POPPINS, weight: 800 },
   'poppins-black': { family: FUENTE_POPPINS, weight: 900 },
-  georgia: { family: "Georgia,'Times New Roman',Times,serif", weight: 400 },
-  arial: { family: 'Arial,Helvetica,sans-serif', weight: 400 },
-  times: { family: "'Times New Roman',Times,serif", weight: 400 },
-  verdana: { family: 'Verdana,Geneva,sans-serif', weight: 400 },
 };
 
 /** @font-face desde URLs estables /fonts (Montserrat + Poppins) */
@@ -136,9 +130,9 @@ function cssFontFaceNewsletter() {
 
 /** Estilos editables del bloque editorial (tipografía / tamaño / negrita / cursiva) */
 function cssEstiloTexto(estilosBloque, clave, defaults = {}) {
-  const e = { fuente: 'serif', tamano: 14, negrita: false, cursiva: false, color: '', ...defaults, ...(estilosBloque?.[clave] || {}) };
+  const e = { fuente: 'montserrat', tamano: 14, negrita: false, cursiva: false, color: '', ...defaults, ...(estilosBloque?.[clave] || {}) };
   const tamano = Math.min(48, Math.max(10, Number(e.tamano) || defaults.tamano || 14));
-  const meta = MAPA_FUENTES[e.fuente] || MAPA_FUENTES.serif;
+  const meta = MAPA_FUENTES[e.fuente] || MAPA_FUENTES.montserrat;
   const weight = e.negrita ? Math.max(meta.weight, 700) : meta.weight;
   const color = /^#[0-9a-f]{3,8}$/i.test(e.color || '') ? e.color : (defaults.color || TEXTO_OSCURO);
   return `font-family:${meta.family};font-size:${tamano}px;font-weight:${weight};font-style:${e.cursiva ? 'italic' : 'normal'};color:${color};`;
@@ -379,12 +373,12 @@ function renderEditorial(b, campana) {
       <table width="536" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:536px;">
         <tr>
           <td class="nl-col" width="290" valign="top" style="width:290px;">
-            <h1 style="${st('titulo', { fuente: 'serif', tamano: 34, negrita: false, color: TEXTO_OSCURO })};margin:0 0 6px 0;line-height:1.15;">${esc(titulo)}</h1>
-            <p style="${st('subtitulo', { fuente: 'serif', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 22px 0;">${esc(subtitulo)}</p>
+            <h1 style="${st('titulo', { fuente: 'montserrat', tamano: 34, negrita: false, color: TEXTO_OSCURO })};margin:0 0 6px 0;line-height:1.15;">${esc(titulo)}</h1>
+            <p style="${st('subtitulo', { fuente: 'montserrat', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 22px 0;">${esc(subtitulo)}</p>
             <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${crema}" style="background-color:${crema};">
               <tr>
                 <td style="padding:22px 20px;">
-                  ${parrafos(intro, `${st('intro_caja', { fuente: 'serif', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
+                  ${parrafos(intro, `${st('intro_caja', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
                   <div style="margin-top:18px;">${botonEditorial(cta1, cta1Link, acento)}</div>
                 </td>
               </tr>
@@ -427,8 +421,8 @@ function renderEditorial(b, campana) {
             ${fotoConCapa(b.imagen_2, 290, 190, 'Imagen 2', MOCK_CREMA_2, 12)}
           </td>
           <td class="nl-col" width="206" valign="middle" style="width:206px;">
-            <h2 style="${st('seccion2_titulo', { fuente: 'serif', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.15;">${esc(sec2Titulo)}</h2>
-            ${parrafos(sec2Texto, `${st('seccion2_texto', { fuente: 'serif', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
+            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.15;">${esc(sec2Titulo)}</h2>
+            ${parrafos(sec2Texto, `${st('seccion2_texto', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
             <div style="margin-top:18px;">${botonEditorial(cta2, cta2Link, acento)}</div>
           </td>
         </tr>
@@ -439,7 +433,7 @@ function renderEditorial(b, campana) {
   <!-- ═══ Zona 3: galería ═══ -->
   <tr>
     <td style="padding:44px 24px 8px 24px;background-color:#ffffff;text-align:center;">
-      <p style="${st('galeria_titulo', { fuente: 'serif', tamano: 13, color: TEXTO_OSCURO })};margin:0 0 28px 0;letter-spacing:4px;">${esc(galeriaTitulo)}</p>
+      <p style="${st('galeria_titulo', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};margin:0 0 28px 0;letter-spacing:4px;">${esc(galeriaTitulo)}</p>
       <table width="536" cellpadding="0" cellspacing="0" border="0" align="center" style="width:100%;max-width:536px;">
         <tr>
           ${galeriaCelda(b.imagen_3, 'Imagen 3', MOCK_CREMA_2, true, false)}
@@ -453,8 +447,8 @@ function renderEditorial(b, campana) {
   <!-- ═══ Zona 4: cierre ═══ -->
   <tr>
     <td style="padding:48px 56px 40px 56px;background-color:#ffffff;text-align:center;">
-      <h2 style="${st('cierre_titulo', { fuente: 'serif', tamano: 18, color: TEXTO_OSCURO })};margin:0 0 14px 0;letter-spacing:3px;">${esc(cierreTitulo)}</h2>
-      ${parrafos(cierreTexto, `${st('cierre_texto', { fuente: 'serif', tamano: 12, color: TEXTO_SUAVE })};line-height:1.8;text-align:center;`)}
+      <h2 style="${st('cierre_titulo', { fuente: 'montserrat', tamano: 18, color: TEXTO_OSCURO })};margin:0 0 14px 0;letter-spacing:3px;">${esc(cierreTitulo)}</h2>
+      ${parrafos(cierreTexto, `${st('cierre_texto', { fuente: 'montserrat', tamano: 12, color: TEXTO_SUAVE })};line-height:1.8;text-align:center;`)}
     </td>
   </tr>
 
