@@ -449,15 +449,25 @@ function renderEditorial(b, campana) {
     </td>
   </tr>
 
-  <!-- ═══ FOLLOW US ═══ -->
+  <!-- ═══ FOLLOW US + logos institucionales (misma franja naranja) ═══ -->
   <tr>
-    <td bgcolor="${acento}" style="background-color:${acento};padding:18px 24px;text-align:center;">
+    <td bgcolor="${acento}" style="background-color:${acento};padding:18px 24px 22px 24px;text-align:center;">
       <p style="font-family:${FUENTE};margin:0 0 10px 0;font-size:12px;letter-spacing:3px;color:#ffffff;font-weight:600;">${esc(follow)}</p>
       <div>
         ${socialIcon(b.social_facebook || 'https://www.facebook.com', 'Facebook')}
         ${socialIcon(b.social_x || 'https://x.com', 'X')}
         ${socialIcon(b.social_instagram || 'https://www.instagram.com', 'Instagram')}
       </div>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:420px;margin:18px auto 0 auto;">
+        <tr>
+          <td align="left" valign="middle" width="70%" style="width:70%;padding:0 10px 0 0;">
+            <img src="${LOGO_CULTURA_NL}" width="180" alt="Cultura Nuevo León" style="border:0;display:block;width:180px;max-width:100%;height:auto;">
+          </td>
+          <td align="right" valign="middle" width="30%" style="width:30%;padding:0 0 0 10px;">
+            <img src="${LOGO_NL_DERECHO}" width="64" alt="Gobierno de Nuevo León" style="border:0;display:inline-block;width:64px;max-width:100%;height:auto;">
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>`;
 }
@@ -500,21 +510,7 @@ function renderNewsletter(campana, opciones = {}) {
   const bgBody = tieneEditorial ? '#FFF7ED' : '#f3f4f6';
   const footerInstitucional = tieneEditorial
     ? `<tr>
-    <td align="center" style="background-color:#ffffff;padding:22px 24px 10px 24px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:520px;margin:0 auto;">
-        <tr>
-          <td align="left" valign="middle" width="50%" style="width:50%;padding:0 12px 0 0;">
-            <img src="${LOGO_CULTURA_NL}" width="200" alt="Cultura Nuevo León" style="border:0;display:block;width:200px;max-width:100%;height:auto;">
-          </td>
-          <td align="right" valign="middle" width="50%" style="width:50%;padding:0 0 0 12px;">
-            <img src="${LOGO_NL_DERECHO}" width="72" alt="Gobierno de Nuevo León" style="border:0;display:inline-block;width:72px;max-width:100%;height:auto;">
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" style="background-color:#ffffff;padding:14px 28px 24px 28px;">
+    <td align="center" style="background-color:#ffffff;padding:18px 28px 24px 28px;">
       <p style="font-family:${FUENTE};margin:0;font-size:11px;line-height:1.5;color:#9ca3af;">
         Recibes este correo porque te suscribiste al newsletter de CulturAll Access.<br>
         <a href="${linkBaja}" style="color:#9ca3af;text-decoration:underline;">Darme de baja</a>
