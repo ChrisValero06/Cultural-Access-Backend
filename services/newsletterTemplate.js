@@ -330,7 +330,7 @@ function renderEditorial(b, campana) {
   const cta1 = b.cta1_texto || 'Leer más';
   const cta1Link = conUtm(b.cta1_link || SITE_URL, campana);
   const etiquetaDia = (b.etiqueta_dia || 'SATURDAY').toUpperCase();
-  const sec2Titulo = b.seccion2_titulo || 'New day';
+  const sec2Titulo = (b.seccion2_titulo || 'New day').toUpperCase();
   const sec2Subtitulo = b.seccion2_subtitulo || '';
   const sec2Texto = b.seccion2_texto || '';
   const cta2 = b.cta2_texto || 'Leer más';
@@ -429,16 +429,20 @@ function renderEditorial(b, campana) {
     </td>
   </tr>
 
-  <!-- ═══ Zona 2: foto horizontal + título a ancho de columna ═══ -->
+  <!-- ═══ Zona 2: título full-width (letter-spacing) + foto | caja ═══ -->
   <tr>
     <td style="padding:36px 28px 10px 28px;background-color:#ffffff;">
-      <table width="544" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:544px;">
+      <table width="536" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:536px;">
+        <tr>
+          <td colspan="2" align="center" style="padding:0 0 22px 0;text-align:center;">
+            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};margin:0;line-height:1.4;letter-spacing:4px;text-transform:uppercase;display:block;width:100%;max-width:100%;box-sizing:border-box;text-align:center;">${escConFormato(sec2Titulo)}</h2>
+          </td>
+        </tr>
         <tr>
           <td class="nl-col" width="268" valign="middle" style="width:268px;padding-right:12px;">
             ${fotoConCapa(b.imagen_2, 248, 162, 'Imagen 2', MOCK_CREMA_2, 10)}
           </td>
           <td class="nl-col" width="264" valign="middle" style="width:264px;">
-            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.2;display:block;width:100%;max-width:100%;box-sizing:border-box;">${escConFormato(sec2Titulo)}</h2>
             <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${crema2}" style="background-color:${crema2};width:100%;">
               <tr>
                 <td style="padding:18px 14px;">
