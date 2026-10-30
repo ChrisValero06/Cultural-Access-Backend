@@ -7,6 +7,13 @@ const LOGO_URL = `${SITE_URL}/images/logo-culturall-access-white.png`;
 const LOGO_FOOTER_URL = `${SITE_URL}/images/logo%20footer.png`;
 const LOGO_CULTURA_NL = `${SITE_URL}/images/LogoIzquiero.png`;
 const LOGO_NL_DERECHO = `${SITE_URL}/images/LogoDerecho.png`;
+// Iconos sociales blancos embebidos (PNG 52px → display 26px). Sin depender de /images/ en el servidor.
+const ICON_FB_B64 = 'iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAYAAADFeBvrAAAACXBIWXMAAAsTAAALEwEAmpwYAAAED0lEQVR4nN2azW8VZRTGRyqJ1AhKWxcWpalxR5vYUmprdeeOFleuinYNpaxaLTsUG7dAF1atUAXcCEHAkCCBjZ+kFRP/AlvY+LEoxBpt5GdO7pl4PJ1779zOey9zfZKb3Mw785xzZt45nxNFVQDQArwAjAAHgNf1d0CPyVpLlFcAW1TRj4HbpMct4CPgNeHIgyH9wCfAH2THinL13S9DrpdQbhm4oU/sGPCO/uT/KV2Tc4rhGvBcLQxpAj4A7iUoMQ+MA13AhhRcG4BuYAJYSOD7G3gf2FotY14ElpzQv4APgR0B+Hcol3BaLAEDYaz4V9hBYNUJOgtsDyqoIKsNOOdkrQKjIcgfAKYc+c/A7iDal5Y9CPziZB8RnbKQemO+BJ4Iqnlp+a3A196o9ZKNOaILwKbgWpfXoxG46HSpbPtpJF91xjxYNa3L67PRGbWa2lGoa77ltlnNn0yRJ/WN0WsxlUsHZp0DaI1yAmCbcxQzaTIAGzSr7s0qBTDkgm9vqZNtOvNpYEWeBvZoIro7SwwDzhs9vyh2Up856c9QQRNo1hc6KV0aWSdnu8so1uZ9munGmA1hTMLd9OjJwHvS8Jzxi49q+h4jc26mvA8n5Gafa4J7GXgoA3eH4RTdN9tFKc5izIcwRnmfccZ8FYpbAHxvuPfaBalRYoxHgQA86ww6FYpbALxhuOfsgg2kXVFGAJ1a0J1wBv1oir2XAsjZabgX44OPm4PLaYqzFIJeoTwOB5DTANw1nM1x3hbju6xCammQQCvlGP2RBrqge7xWW04gLtvw7/VlwtEoILS/QOKLG07GccO/Xw4cMgferkODpgz/5P/SoLE633LTfsu9WsXAVwuDzninYN32jTo0aMG77eCBtVYGkRRYE1Kf7joyqGdN6qML0lSPMVFHBk0a7pN2wWYLC3Vk0E3DPewHVrbA68i7QRTSqxi/A4+UKsFPRDkHMGf0PV2uSSJlc1uUU1DoINnObm+aNtbZKKcAPjN6Xil1Yp8272IMRjkDhd5eDNF1V7kLZAwY4zfgqSi/reB301y01Y0eZT7TWBONyzfrvzV6/QQ8lvbiAffSSedzY9W1Lj1OueScVn+lJKOGIDaq8T49mUtOl33rJZOZJm77bQuudXH5T7ptJngr69DYGyUv5VBQzZNlvwz86mS/GYp8NGGsL0349iAC1gZNG2dQ2ftCC3pex4BekEwBOgPwdyiXv3GLFTuACoSKS3/PBd8YN/UTMqlRGlIWZz1aAvyQwCcyZlK75oyG9QJXKY472tE8rU2MuLk4rT2AeVdpelwpmwFUAzI5UwVt6bFerOgNKD4zrRVk2CQdF03p/QdOpbCo1wz/Z2CVN1CYq4oTkUp4v/lEU/7LMZm2N1VD+D9pBABvkEwkIgAAAABJRU5ErkJggg==';
+const ICON_X_B64 = 'iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAYAAADFeBvrAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEM0lEQVR4nN2aS29VVRTHjyADm+ADWgeAQnDaMiiW2kvxE0CVoGFgq46h4KiFMsRHmIIMqIqCtjoRgsoIjU6MQlPEr+BtnQgMwIiBq/7MinvH5ep53rPP7cF/cpN799l7rfW/+5y11+NEUQUAeoAdwKvAAeCQ+xxwY3KtJ6orgEecoR8BP5Mfi8CHwCsiow5EGsAnwO+Uxx0na2i5iHyTYtwtYM7t2AngmPvI9xl3TeYk4WvgmU4QWQu8B/wVY8Q8MAH0AytyyFoBbAUmgasx8v4E3gXWVEXmWWDBKL0HvA/0BpDf62SJTI0FYDgMi3+VvQa0jKJzwMagiv7RtQk4b3S1gPEQwh8A3jLCfwF2BrE+Xfcu4LrR/YbYVEaoJfMtsC6o5en61wPfWVLtCjtoBH0OPBTc6mw7uoAvjC3Fbj93krcMmQcrszrbnlWGVCu3o3CuedHcZh3fmYSd+l7Z1czl0oHTxgGsj2oCYINxFNN5IgB9aFbuzYoCGDGH72DaZB3OfJoheKcLROWzJ4Chu5W81D8SuKDs/DJp0pCadDfr0DTPmTyke0uQ2Wuc0GLG/M0molga97lI1+N0DiM0obZJxZDJJCQAzqj5H0cawKMufPfIjM3kNosxpBCpBDLye3eOtX1qjdj+sL4oyZnHfAGDXogx6A9gNMfaFxPWvlRA/w9q7Zi+IDmKx0Rege2SCkFGABxW688mPQ/9UUEUIRWKjAB4Wslo+sHH1eCtPMlZu6RCkhEAK4FflaxuH7d5XIlKII1UaDIeLlP2aESu4uIxE5VEiucq5RGTIC5byRyzacLxKAASdirozngAbyu5+2XgiBp4MwqEhJ0KtjMJSehUlYTinpnc51QZQgcruOWSyAQnBZy0t9zL/zensEMNzJUUnuiay4RJaTBFykbIgzXznAlNiriDNSb02VoFmSpIAQNLQh93QYrqHpNVkQlNCphS68/oCzpauFolmZCkgGtq7ahtWOkEr+8+SPC2qDW/AavTUvAP7oMU/KyaP5tVJJECxKYaF0meMvMH85SxztW4jPWZsvNS2sQhV7zz2BXVDMBzyj6xdVvWAmkDetwEnozqWwo+lWfRGtN6lP5MV0cszi7WX1Z2/QQ8lnfxsHnopJWxqnKr09spF43TahQVMq4EeFJdy7QzF40t+9oVJj1NzO23IbjVyfqfMLeZ4PWyTWNLSh7KkaCWx+t+HrhhdB8NJXw85jSXlsbmIAqWHpr6nMHp3hda0XbXBrSKpAuwJYD8PifL/nHNwg6ggFJx6e+Yw9fjmnuFTHKUlTmTswGXAvwYI090TOd2zSWJDQJfkYzbrqI564oY/uWlk64GMG8yTYtLmRFAFZDOmTNQpx7t4o77A5J7pp2CNJuk4uJCevuCUxqabs3ofxpWdQPQ7ZyIZML71Sua8l3GpNu+tgrlfwOoFE9j5YX4twAAAABJRU5ErkJggg==';
+const ICON_IG_B64 = 'iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAYAAADFeBvrAAAACXBIWXMAAAsTAAALEwEAmpwYAAADOElEQVR4nO2ZTU8UQRCGB+TLE1xQTnIVPIFG8Q+AnPXgx1WIelvAeOVoIguIv0GRZOWfKB7kICJqCIJwAOHA8TFtakzZaXZnp3uG1cybdEJ2pqvqpbqraqqiqECBAgUKOAA0AYPAPaAEPPFcJZFlZDZFeQHoAeaALbLDlug4n7VHHgNH5IcjYDK4x4CzwGuHwu/AIlAGnnqussjaduh5BXSE9IxN5i0wDDQHUfK3vmZgBHjnIOXvKTlmGvPAmSDWV9fbIro0JnyFngMOlcC5YBYnt+G5dad6fITNWccsM88AXcC4rE7LUyvKjrLP3dGheTgkAQeZDaXrs0Xqhnq2meouAVesaFZ3AAAuSbKcUImz3/HeA0dkG7cCxY56NpiG0F0lYLGOfR3AFLDOyViX/PI7FMsxs3Hfkruknt1OQ8gYFeNZwj1DwDeS46vs6ZJjpgn/OXIie0Y9n0xDaFoJmE7w/i3g2DJ4H6gAs7Iq8pvGseztBMZkdfraE/kIAK5bZH6IYa2Od1vliO1apIZq6JjOhZDcGXN0YnwALiSQ3wusqn1fgPZGIDRleaYmGYvUbpJKgBwJran3xlLo0SH7k689kY8AyTMx9l13phaANuBAyelLa08IQjpXVapLrKrrTa0cQ06E6s5VJ8ipmWPIiZDJ9jFmUnCJ5ZgcVTUwkBOhO4GO3HKjHLn+/yooGAAfXRVyUgCPGiZsO+6RSZK9UX2JdU/tLzVi6bOahJSj9NloiNLHQD4BdHG6JxVAW+S+Mw8tz5i9V+13T41Qlc+HA0ma8efDshUAYjI3Q9sTJMcA16RqToqNWp6JIY3I9O0sK8fU8wneLj0EXbTaWJMeQ3sdcpd8P8EvKwHbKZskffKPKckyf19MIafZapIMhGhjjUSnBGDUu43lqLFMo7EluLW1bWgB3oeoGY2wbuCnEjYf1NpkNrywWsF+MyMr2hks5OEp8cyCpbsUQnCTzG00VqQ9m9U4ZdQ6ZgYvgw2+pLwx8xkbOzI7mg0wY52V0GwaLTjIdAQhY3lqwhqvZI1DCffZDZFlZlSW8JkVNkVHd2ZETvDYgEqcvjPWOPEO5DrWL1CgQIHoX8IvHSqML+WL4IoAAAAASUVORK5CYII=';
+const ICON_FB_SRC = `data:image/png;base64,${ICON_FB_B64}`;
+const ICON_X_SRC = `data:image/png;base64,${ICON_X_B64}`;
+const ICON_IG_SRC = `data:image/png;base64,${ICON_IG_B64}`;
 const COLOR_DEFAULT = '#F97316'; // Naranja CulturAll Access (sitio)
 // Paleta editorial: siempre naranja de marca (no café del mockup viejo)
 const MOCK_ACENTO = COLOR_DEFAULT; // botones + footer + acentos
@@ -329,7 +336,7 @@ function renderEditorial(b, campana) {
 
   const socialIcon = (href, label, iconSrc) => `
     <a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 10px;text-decoration:none;line-height:0;vertical-align:middle;">
-      <img src="${esc(iconSrc)}" width="26" height="26" alt="${esc(label)}" style="border:0;display:block;width:26px;height:26px;">
+      <img src="${iconSrc}" width="26" height="26" alt="${esc(label)}" style="border:0;display:block;width:26px;height:26px;">
     </a>`;
 
   // Franja naranja: solo wordmark CulturAll Access en blanco, centrado
@@ -462,9 +469,9 @@ function renderEditorial(b, campana) {
           <td width="34%" align="center" valign="middle" style="width:34%;padding:0 8px;text-align:center;">
             <p style="font-family:${FUENTE};margin:0 0 8px 0;font-size:12px;letter-spacing:3px;color:#ffffff;font-weight:600;text-align:center;">${esc(follow)}</p>
             <div style="text-align:center;line-height:0;">
-              ${socialIcon(b.social_facebook || 'https://www.facebook.com', 'Facebook', `${SITE_URL}/images/icon-facebook.png`)}
-              ${socialIcon(b.social_x || 'https://x.com', 'X', `${SITE_URL}/images/icon-x.png`)}
-              ${socialIcon(b.social_instagram || 'https://www.instagram.com', 'Instagram', `${SITE_URL}/images/icon-instagram.png`)}
+              ${socialIcon(b.social_facebook || 'https://www.facebook.com', 'Facebook', ICON_FB_SRC)}
+              ${socialIcon(b.social_x || 'https://x.com', 'X', ICON_X_SRC)}
+              ${socialIcon(b.social_instagram || 'https://www.instagram.com', 'Instagram', ICON_IG_SRC)}
             </div>
           </td>
           <td width="33%" align="right" valign="middle" style="width:33%;padding:0 0 0 8px;">
