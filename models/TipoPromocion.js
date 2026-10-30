@@ -1,12 +1,18 @@
 // models/TipoPromocion.js
 const db = require('../db');
 
+function normalizarLimiteUso(raw) {
+    const limiteUsoRaw = (raw || '').toString().trim();
+    const limite_uso = (limiteUsoRaw === 'una_vez' || limiteUsoRaw === 'mensual') ? limiteUsoRaw : null;
+    const limitar_uso = limite_uso ? 1 : 0;
+    return { limite_uso, limitar_uso };
+}
+
 class TipoPromocion {
     static async getAll() {
         try {
             const [tipos] = await db.execute('SELECT * FROM tipos_promocion ORDER BY nombre ASC');
 
-            // Obtener instituciones de cada tipo
             for (const tipo of tipos) {
                 const [instituciones] = await db.execute(
                     'SELECT institucion_nombre FROM tipos_promocion_instituciones WHERE tipo_promocion_id = ? ORDER BY institucion_nombre ASC',
@@ -42,73 +48,71 @@ class TipoPromocion {
         }
     }
 
-    static async create(nombre, instituciones = [], activo = true) {
+    static async create(nombre, instituciones = [], activo = true, limiteUsoRaw = null) {
         try {
+            const { limite_uso, limitar_uso } = normalizarLimiteUso(limiteUsoRaw);
+
             const [result] = await db.execute(
-                'INSERT INTO tipos_promocion (nombre, activo) VALUES (?, ?)',
-                [nombre, activo ? 1 : 0]
+                'INSERT INTO tipos_promocion (nombre, activo, limite_uso, limitar_uso) VALUES (?, ?, ?, ?)',
+                [nombre, activo ? 1 : 0, limite_uso, limitar_uso]
             );
 
             const tipoId = result.insertId;
 
-            // Insertar instituciones asignadas
             if (instituciones.length > 0) {
-                const values = instituciones.map(inst => [tipoId, inst]);
-                for (const [tId, inst] of values) {
+                for (const inst of instituciones) {
                     await db.execute(
                         'INSERT INTO tipos_promocion_instituciones (tipo_promocion_id, institucion_nombre) VALUES (?, ?)',
-                        [tId, inst]
+                        [tipoId, inst]
                     );
                 }
             }
 
-            return { id: tipoId, nombre, instituciones };
+            return { id: tipoId, nombre, instituciones, limite_uso, limitar_uso };
         } catch (error) {
             console.error('Error en TipoPromocion.create:', error);
             throw error;
         }
     }
 
-	static async update(id, nombre, instituciones = [], activo = true) {
-      try {
-          // Obtener el nombre anterior para actualizar las promociones existentes
-          const [rows] = await db.execute('SELECT nombre FROM tipos_promocion WHERE id = ?', [id]);
-          const nombreAnterior = rows[0]?.nombre;
+    static async update(id, nombre, instituciones = [], activo = true, limiteUsoRaw = null) {
+        try {
+            const [rows] = await db.execute('SELECT nombre FROM tipos_promocion WHERE id = ?', [id]);
+            const nombreAnterior = rows[0]?.nombre;
+            const { limite_uso, limitar_uso } = normalizarLimiteUso(limiteUsoRaw);
 
-          const [result] = await db.execute(
-              'UPDATE tipos_promocion SET nombre = ?, activo = ? WHERE id = ?',
-              [nombre, activo ? 1 : 0, id]
-          );
+            const [result] = await db.execute(
+                'UPDATE tipos_promocion SET nombre = ?, activo = ?, limite_uso = ?, limitar_uso = ? WHERE id = ?',
+                [nombre, activo ? 1 : 0, limite_uso, limitar_uso, id]
+            );
 
-          // Actualizar el nombre en todas las promociones que usen el nombre anterior
-          if (nombreAnterior && nombreAnterior !== nombre) {
-              await db.execute(
-                  'UPDATE promociones SET tipo_promocion = ? WHERE tipo_promocion = ?',
-                  [nombre, nombreAnterior]
-              );
-          }
+            if (nombreAnterior && nombreAnterior !== nombre) {
+                await db.execute(
+                    'UPDATE promociones SET tipo_promocion = ? WHERE tipo_promocion = ?',
+                    [nombre, nombreAnterior]
+                );
+            }
 
-          // Reemplazar instituciones
-          await db.execute(
-              'DELETE FROM tipos_promocion_instituciones WHERE tipo_promocion_id = ?',
-              [id]
-          );
+            await db.execute(
+                'DELETE FROM tipos_promocion_instituciones WHERE tipo_promocion_id = ?',
+                [id]
+            );
 
-          if (instituciones.length > 0) {
-              for (const inst of instituciones) {
-                  await db.execute(
-                      'INSERT INTO tipos_promocion_instituciones (tipo_promocion_id, institucion_nombre) VALUES (?, ?)',      
-                      [id, inst]
-                  );
-              }
-          }
+            if (instituciones.length > 0) {
+                for (const inst of instituciones) {
+                    await db.execute(
+                        'INSERT INTO tipos_promocion_instituciones (tipo_promocion_id, institucion_nombre) VALUES (?, ?)',
+                        [id, inst]
+                    );
+                }
+            }
 
-          return { affectedRows: result.affectedRows };
-      } catch (error) {
-          console.error('Error en TipoPromocion.update:', error);
-          throw error;
-      }
-  }
+            return { affectedRows: result.affectedRows };
+        } catch (error) {
+            console.error('Error en TipoPromocion.update:', error);
+            throw error;
+        }
+    }
 
     static async setActivo(id, activo) {
         try {
@@ -125,7 +129,6 @@ class TipoPromocion {
 
     static async delete(id) {
         try {
-            // Eliminar instituciones asignadas primero
             await db.execute(
                 'DELETE FROM tipos_promocion_instituciones WHERE tipo_promocion_id = ?',
                 [id]

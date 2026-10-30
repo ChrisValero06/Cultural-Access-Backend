@@ -59,12 +59,21 @@ const fs = require('fs');
       }
   });
 
+  function interpretarLimite(cfg) {
+      if (!cfg) return { tieneLimiteUnaVez: false, tieneLimiteMensual: false };
+      const limiteUso = (cfg.limite_uso || '').toString().toLowerCase().trim();
+      const tieneLimiteUnaVez = limiteUso === 'una_vez';
+      const tieneLimiteMensual =
+          limiteUso === 'mensual' ||
+          (!limiteUso && (cfg.limitar_uso == 1 || cfg.limitar_uso === true || cfg.limitar_uso === '1'));
+      return { tieneLimiteUnaVez, tieneLimiteMensual };
+  }
+
   async function verificarLimitePromocion({ institucion, numero_tarjeta, tipo_promocion }) {
       if (!tipo_promocion) return { ok: true };
 
       const db = require('../db');
-      // Límite: leer config aunque la promo esté inactiva/vencida.
-      // Preferir filas con límite configurado (limite_uso o limitar_uso=1).
+      // Precedencia: límite explícito de la promo gana; si no hay promo o no tiene límite → tipos_promocion.
       const [promos] = await db.execute(
           `SELECT limite_uso, limitar_uso, estado, fecha_fin FROM promociones
            WHERE LOWER(TRIM(institucion)) = LOWER(TRIM(?))
@@ -80,23 +89,30 @@ const fs = require('fs');
           [institucion, tipo_promocion]
       );
 
-      if (!promos.length) {
-          // Tipo en catálogo sin fila en promociones ⇒ no hay tope configurado
-          log('⚠️ Sin promo en BD para límite: ' + JSON.stringify({ institucion, tipo_promocion }));
-          return { ok: true };
-      }
-
-      const promo = promos[0];
-      const limiteUso = (promo.limite_uso || '').toString().toLowerCase().trim();
-      const tieneLimiteUnaVez = limiteUso === 'una_vez';
-      const tieneLimiteMensual =
-          limiteUso === 'mensual' ||
-          (!limiteUso && (promo.limitar_uso == 1 || promo.limitar_uso === true || promo.limitar_uso === '1'));
+      let fuente = 'promo';
+      let cfg = promos[0] || null;
+      let { tieneLimiteUnaVez, tieneLimiteMensual } = interpretarLimite(cfg);
 
       if (!tieneLimiteUnaVez && !tieneLimiteMensual) {
-          log('⚠️ Promo sin límite (limite_uso/limitar_uso vacíos): ' + JSON.stringify({ institucion, tipo_promocion, limite_uso: promo.limite_uso, limitar_uso: promo.limitar_uso }));
+          const [tipos] = await db.execute(
+              `SELECT limite_uso, limitar_uso FROM tipos_promocion
+               WHERE LOWER(TRIM(nombre)) = LOWER(TRIM(?))
+               LIMIT 1`,
+              [tipo_promocion]
+          );
+          if (tipos.length) {
+              fuente = 'tipo';
+              cfg = tipos[0];
+              ({ tieneLimiteUnaVez, tieneLimiteMensual } = interpretarLimite(cfg));
+          }
+      }
+
+      if (!tieneLimiteUnaVez && !tieneLimiteMensual) {
+          log('⚠️ Sin límite (promo ni tipo): ' + JSON.stringify({ institucion, tipo_promocion, hayPromo: !!promos.length }));
           return { ok: true };
       }
+
+      log('🔒 Límite desde ' + fuente + ': ' + JSON.stringify({ institucion, tipo_promocion, limite_uso: cfg?.limite_uso, limitar_uso: cfg?.limitar_uso }));
 
       const numeroNorm = normalizarTarjeta(numero_tarjeta);
       const [registros] = await db.execute(
