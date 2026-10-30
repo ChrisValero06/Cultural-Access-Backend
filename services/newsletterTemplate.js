@@ -4,6 +4,7 @@
 
 const SITE_URL = 'https://culturallaccess.com';
 const LOGO_URL = `${SITE_URL}/images/logo-culturall-access-white.png`;
+const LOGO_NL_ESCUDO = `${SITE_URL}/images/logo-nl-escudo.png`;
 const LOGO_FOOTER_URL = `${SITE_URL}/images/logo%20footer.png`;
 const LOGO_CULTURA_NL = `${SITE_URL}/images/LogoIzquiero.png`;
 const LOGO_NL_DERECHO = `${SITE_URL}/images/LogoDerecho.png`;
@@ -339,13 +340,24 @@ function renderEditorial(b, campana) {
       <img src="${iconSrc}" width="26" height="26" alt="${esc(label)}" style="border:0;display:block;width:26px;height:26px;">
     </a>`;
 
-  // Franja naranja: solo wordmark CulturAll Access en blanco, centrado
+  // Franja naranja: escudo NL + wordmark CulturAll Access, centrados juntos
   const franjaGobierno = `
   <tr>
     <td bgcolor="${acento}" align="center" style="background-color:${acento};padding:18px 24px;text-align:center;">
-      <a href="${SITE_URL}" target="_blank" style="text-decoration:none;">
-        <img src="${LOGO_URL}" width="280" alt="CulturAll Access" style="border:0;display:inline-block;width:280px;max-width:100%;height:auto;">
-      </a>
+      <table cellpadding="0" cellspacing="0" border="0" align="center" role="presentation" style="margin:0 auto;">
+        <tr>
+          <td valign="middle" style="padding:0 12px 0 0;line-height:0;">
+            <a href="${SITE_URL}" target="_blank" style="text-decoration:none;line-height:0;">
+              <img src="${LOGO_NL_ESCUDO}" width="46" height="52" alt="Nuevo León" style="border:0;display:block;width:46px;height:52px;">
+            </a>
+          </td>
+          <td valign="middle" style="line-height:0;">
+            <a href="${SITE_URL}" target="_blank" style="text-decoration:none;line-height:0;">
+              <img src="${LOGO_URL}" width="240" alt="CulturAll Access" style="border:0;display:block;width:240px;max-width:100%;height:auto;">
+            </a>
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>`;
 
