@@ -36,20 +36,95 @@ const fs = require('fs');
       }
   });
 
+  const normalizarTarjeta = (numero) => String(numero || '').replace(/\D/g, '').padStart(5, '0');
+
   // GET redenciones por número de tarjeta
   router.get('/tarjeta/:numero', async (req, res) => {
       try {
-          const numero = req.params.numero.trim();
+          const numeroRaw = req.params.numero.trim();
+          const numeroNorm = normalizarTarjeta(numeroRaw);
           const db = require('../db');
+          // Incluye variantes con/sin ceros a la izquierda (registros legacy)
           const [rows] = await db.execute(
-              'SELECT * FROM control_acceso WHERE numero_tarjeta = ? ORDER BY fecha DESC',
-              [numero]
+              `SELECT * FROM control_acceso
+               WHERE numero_tarjeta = ?
+                  OR numero_tarjeta = ?
+                  OR LPAD(TRIM(numero_tarjeta), 5, '0') = ?
+               ORDER BY fecha DESC`,
+              [numeroRaw, numeroNorm, numeroNorm]
           );
           res.json(rows);
       } catch (error) {
           res.status(500).json({ success: false, error: 'Error al buscar tarjeta: ' + error.message });
       }
   });
+
+  async function verificarLimitePromocion({ institucion, numero_tarjeta, tipo_promocion }) {
+      if (!tipo_promocion) return { ok: true };
+
+      const db = require('../db');
+      const [promos] = await db.execute(
+          `SELECT limite_uso, limitar_uso FROM promociones
+           WHERE LOWER(TRIM(institucion)) = LOWER(TRIM(?))
+             AND LOWER(TRIM(tipo_promocion)) = LOWER(TRIM(?))
+             AND estado = 'activa'
+             AND (fecha_fin IS NULL OR fecha_fin >= CURDATE())
+           ORDER BY fecha_creacion DESC
+           LIMIT 1`,
+          [institucion, tipo_promocion]
+      );
+
+      if (!promos.length) return { ok: true };
+
+      const promo = promos[0];
+      const limiteUso = (promo.limite_uso || '').toString().toLowerCase().trim();
+      const tieneLimiteUnaVez = limiteUso === 'una_vez';
+      const tieneLimiteMensual =
+          limiteUso === 'mensual' ||
+          (!limiteUso && (promo.limitar_uso == 1 || promo.limitar_uso === true || promo.limitar_uso === '1'));
+
+      if (!tieneLimiteUnaVez && !tieneLimiteMensual) return { ok: true };
+
+      const numeroNorm = normalizarTarjeta(numero_tarjeta);
+      const [registros] = await db.execute(
+          `SELECT fecha, tipo_promocion, institucion FROM control_acceso
+           WHERE (numero_tarjeta = ? OR numero_tarjeta = ? OR LPAD(TRIM(numero_tarjeta), 5, '0') = ?)
+             AND LOWER(TRIM(institucion)) = LOWER(TRIM(?))
+             AND LOWER(TRIM(COALESCE(tipo_promocion, ''))) = LOWER(TRIM(?))
+           ORDER BY fecha DESC`,
+          [numero_tarjeta, numeroNorm, numeroNorm, institucion, tipo_promocion]
+      );
+
+      if (tieneLimiteUnaVez && registros.length > 0) {
+          return {
+              ok: false,
+              status: 409,
+              message: 'Esta tarjeta ya fue utilizada en esta promoción. Solo se permite una redención por tarjeta.'
+          };
+      }
+
+      if (tieneLimiteMensual) {
+          const [mensuales] = await db.execute(
+              `SELECT id_institucion FROM control_acceso
+               WHERE (numero_tarjeta = ? OR numero_tarjeta = ? OR LPAD(TRIM(numero_tarjeta), 5, '0') = ?)
+                 AND LOWER(TRIM(institucion)) = LOWER(TRIM(?))
+                 AND LOWER(TRIM(COALESCE(tipo_promocion, ''))) = LOWER(TRIM(?))
+                 AND YEAR(fecha) = YEAR(CURDATE())
+                 AND MONTH(fecha) = MONTH(CURDATE())
+               LIMIT 1`,
+              [numero_tarjeta, numeroNorm, numeroNorm, institucion, tipo_promocion]
+          );
+          if (mensuales.length > 0) {
+              return {
+                  ok: false,
+                  status: 409,
+                  message: 'Esta tarjeta ya fue utilizada en esta promoción este mes.'
+              };
+          }
+      }
+
+      return { ok: true };
+  }
 
   router.post('/', async (req, res) => {
       try {
@@ -75,9 +150,24 @@ const fs = require('fs');
               });
           }
 
+          const numeroNorm = normalizarTarjeta(numero_tarjeta);
+
+          const limiteCheck = await verificarLimitePromocion({
+              institucion: institucion.trim(),
+              numero_tarjeta: numeroNorm,
+              tipo_promocion: tipo_promocion || null
+          });
+          if (!limiteCheck.ok) {
+              log('⛔ Límite de promoción: ' + limiteCheck.message);
+              return res.status(limiteCheck.status || 409).json({
+                  success: false,
+                  message: limiteCheck.message
+              });
+          }
+
 			const accesoData = {
 			  institucion: institucion.trim(),
-			  numero_tarjeta: numero_tarjeta.trim(),
+			  numero_tarjeta: numeroNorm,
 			  fecha,
 			  tipo_promocion: tipo_promocion || null
 		  };
@@ -107,12 +197,14 @@ const fs = require('fs');
               });
 
           } catch (error) {
-              log('❌ Error enviando correo: ' + error.message);
+              // El registro ya se guardó: no tratar el fallo de correo como error de creación
+              log('⚠️ Registro OK pero error enviando correo: ' + error.message);
 
-              return res.status(500).json({
-                  success: false,
-                  message: "Acceso registrado pero ocurrió un error enviando el correo",
-                  error: error.message
+              return res.status(201).json({
+                  success: true,
+                  warning: true,
+                  message: "Registro creado; no se pudo enviar el correo",
+                  email_error: error.message
               });
           }
 

@@ -220,6 +220,10 @@ router.post('/crear-sin-imagen', async (req, res) => {
             });
         }
 
+        const limiteUsoRaw = (body.limite_uso || body.limiteUso || '').toString().trim();
+        const limite_uso = (limiteUsoRaw === 'una_vez' || limiteUsoRaw === 'mensual') ? limiteUsoRaw : null;
+        const limitar_uso = limite_uso ? 1 : 0;
+
         // Crear promoción SIN imágenes
         const promocionData = {
             institucion,
@@ -231,7 +235,9 @@ router.post('/crear-sin-imagen', async (req, res) => {
             fecha_fin,
             imagen_principal: null,
             imagen_secundaria: null,
-            estado
+            estado,
+            limite_uso,
+            limitar_uso
         };
 
         const promocionDataSanitizada = Object.fromEntries(
@@ -311,6 +317,43 @@ router.get('/', async (req, res) => {
         return res.json(result);
     } catch (error) {
         console.error('Error en GET /api/promociones:', error);
+        res.status(500).json({ success: false, error: 'Error al obtener promociones' });
+    }
+});
+
+// Alias legado usado por el front (Redencion, listados): debe ir ANTES de /:id
+router.get('/obtener_promociones', async (req, res) => {
+    try {
+        const db = require('../db');
+        const { institucion, disciplina, all } = req.query;
+        const includeAll = all === '1' || all === 'true';
+
+        let query = 'SELECT * FROM promociones';
+        const params = [];
+        const conditions = [];
+
+        if (!includeAll) {
+            conditions.push(`estado = 'activa'`);
+            conditions.push(`(fecha_fin IS NULL OR fecha_fin >= CURDATE())`);
+        }
+        if (institucion) {
+            conditions.push('LOWER(TRIM(institucion)) = LOWER(TRIM(?))');
+            params.push(institucion);
+        }
+        if (disciplina) {
+            conditions.push('LOWER(TRIM(disciplina)) = LOWER(TRIM(?))');
+            params.push(disciplina);
+        }
+        if (conditions.length) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+        query += ' ORDER BY fecha_creacion DESC';
+
+        const [rows] = await db.execute(query, params);
+        // Compat: array plano (Redencion) y { success, data }
+        res.json({ success: true, data: rows, count: rows.length, promociones: rows });
+    } catch (error) {
+        console.error('Error en GET /api/promociones/obtener_promociones:', error);
         res.status(500).json({ success: false, error: 'Error al obtener promociones' });
     }
 });
@@ -402,7 +445,8 @@ router.put('/:id', upload.fields([
 
         // Límite por tarjeta (crear/editar): una_vez | mensual | null
         if (body.limite_uso !== undefined || body.limiteUso !== undefined || body.limitar_uso !== undefined) {
-          const limiteUsoRaw = (body.limite_uso !== undefined ? body.limite_uso : body.limiteUso);
+          const raw = body.limite_uso !== undefined ? body.limite_uso : body.limiteUso;
+          const limiteUsoRaw = (raw == null ? '' : String(raw)).trim();
           const limiteNormalizado = (limiteUsoRaw === 'una_vez' || limiteUsoRaw === 'mensual') ? limiteUsoRaw : null;
           updateData.limite_uso = limiteNormalizado;
           updateData.limitar_uso = limiteNormalizado ? 1 : 0;
@@ -576,6 +620,10 @@ router.put('/:id', async (req, res) => {
         const fecha_fin = body.fecha_fin || body.fechaFin;
         const estado = body.estado;
 
+        const limiteUsoRaw = (body.limite_uso || body.limiteUso || '').toString().trim();
+        const tieneCampoLimite = body.limite_uso !== undefined || body.limiteUso !== undefined || body.limitar_uso !== undefined;
+        const limiteNormalizado = (limiteUsoRaw === 'una_vez' || limiteUsoRaw === 'mensual') ? limiteUsoRaw : null;
+
         const updateData = {
             institucion: ineflucion !== undefined ? ineflucion : existingPromo.data.institucion,
             tipo_promocion: tipo_premedio !== undefined ? tipo_premedio : existingPromo.data.tipo_promocion,
@@ -584,7 +632,9 @@ router.put('/:id', async (req, res) => {
             comentarios_restricciones: comentarios_restrictiones !== undefined ? comentarios_restrictiones : existingPromo.data.comentarios_restricciones,
             fecha_inicio: fecha_inicio !== undefined ? fecha_inicio : existingPromo.data.fecha_inicio,
             fecha_fin: fecha_fin !== undefined ? fecha_fin : existingPromo.data.fecha_fin,
-            estado: estado !== undefined ? estado : existingPromo.data.estado
+            estado: estado !== undefined ? estado : existingPromo.data.estado,
+            limite_uso: tieneCampoLimite ? limiteNormalizado : (existingPromo.data.limite_uso || null),
+            limitar_uso: tieneCampoLimite ? (limiteNormalizado ? 1 : 0) : (existingPromo.data.limitar_uso ? 1 : 0)
         };
 
         const updateDataSanitizada = Object.fromEntries(
