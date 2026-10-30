@@ -35,13 +35,22 @@ function esc(texto) {
     .replace(/"/g, '&quot;');
 }
 
-// Texto plano → párrafos (doble salto) y <br> (salto simple)
+/** Escapa HTML y reabre solo <strong>/<b> (negrita inline del editor) */
+function escConFormato(texto) {
+  return esc(texto)
+    .replace(/&lt;strong&gt;/gi, '<strong>')
+    .replace(/&lt;\/strong&gt;/gi, '</strong>')
+    .replace(/&lt;b&gt;/gi, '<strong>')
+    .replace(/&lt;\/b&gt;/gi, '</strong>');
+}
+
+// Texto (con <strong> opcional) → párrafos (doble salto) y <br> (salto simple)
 function parrafos(texto, estilo) {
   return String(texto || '')
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
-    .map((p) => `<p style="margin:0 0 12px 0;${estilo}">${esc(p).replace(/\n/g, '<br>')}</p>`)
+    .map((p) => `<p style="margin:0 0 12px 0;${estilo}">${escConFormato(p).replace(/\n/g, '<br>')}</p>`)
     .join('');
 }
 
@@ -373,8 +382,8 @@ function renderEditorial(b, campana) {
       <table width="536" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:536px;">
         <tr>
           <td class="nl-col" width="290" valign="top" style="width:290px;">
-            <h1 style="${st('titulo', { fuente: 'montserrat', tamano: 34, negrita: false, color: TEXTO_OSCURO })};margin:0 0 6px 0;line-height:1.15;">${esc(titulo)}</h1>
-            <p style="${st('subtitulo', { fuente: 'montserrat', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 22px 0;">${esc(subtitulo)}</p>
+            <h1 style="${st('titulo', { fuente: 'montserrat', tamano: 34, negrita: false, color: TEXTO_OSCURO })};margin:0 0 6px 0;line-height:1.15;">${escConFormato(titulo)}</h1>
+            <p style="${st('subtitulo', { fuente: 'montserrat', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 22px 0;">${escConFormato(subtitulo)}</p>
             <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${crema}" style="background-color:${crema};">
               <tr>
                 <td style="padding:22px 20px;">
@@ -421,7 +430,7 @@ function renderEditorial(b, campana) {
             ${fotoConCapa(b.imagen_2, 290, 190, 'Imagen 2', MOCK_CREMA_2, 12)}
           </td>
           <td class="nl-col" width="206" valign="middle" style="width:206px;">
-            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.15;">${esc(sec2Titulo)}</h2>
+            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.15;">${escConFormato(sec2Titulo)}</h2>
             ${parrafos(sec2Texto, `${st('seccion2_texto', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
             <div style="margin-top:18px;">${botonEditorial(cta2, cta2Link, acento)}</div>
           </td>
@@ -433,7 +442,7 @@ function renderEditorial(b, campana) {
   <!-- ═══ Zona 3: galería ═══ -->
   <tr>
     <td style="padding:44px 24px 8px 24px;background-color:#ffffff;text-align:center;">
-      <p style="${st('galeria_titulo', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};margin:0 0 28px 0;letter-spacing:4px;">${esc(galeriaTitulo)}</p>
+      <p style="${st('galeria_titulo', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};margin:0 0 28px 0;letter-spacing:4px;">${escConFormato(galeriaTitulo)}</p>
       <table width="536" cellpadding="0" cellspacing="0" border="0" align="center" style="width:100%;max-width:536px;">
         <tr>
           ${galeriaCelda(b.imagen_3, 'Imagen 3', MOCK_CREMA_2, true, false)}
@@ -447,7 +456,7 @@ function renderEditorial(b, campana) {
   <!-- ═══ Zona 4: cierre ═══ -->
   <tr>
     <td style="padding:48px 56px 40px 56px;background-color:#ffffff;text-align:center;">
-      <h2 style="${st('cierre_titulo', { fuente: 'montserrat', tamano: 18, color: TEXTO_OSCURO })};margin:0 0 14px 0;letter-spacing:3px;">${esc(cierreTitulo)}</h2>
+      <h2 style="${st('cierre_titulo', { fuente: 'montserrat', tamano: 18, color: TEXTO_OSCURO })};margin:0 0 14px 0;letter-spacing:3px;">${escConFormato(cierreTitulo)}</h2>
       ${parrafos(cierreTexto, `${st('cierre_texto', { fuente: 'montserrat', tamano: 12, color: TEXTO_SUAVE })};line-height:1.8;text-align:center;`)}
     </td>
   </tr>
