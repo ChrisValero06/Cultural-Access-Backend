@@ -71,6 +71,11 @@ function colorValido(color) {
   return /^#[0-9a-f]{6}$/i.test(color || '') ? color : COLOR_DEFAULT;
 }
 
+/** Fondo de cajas crema del editorial; default MOCK_CREMA si no es hex válido */
+function colorCaja(color) {
+  return /^#[0-9a-f]{6}$/i.test(color || '') ? color : MOCK_CREMA;
+}
+
 // Agrega UTMs solo a links del propio sitio
 function conUtm(url, campana) {
   if (!url) return SITE_URL;
@@ -315,7 +320,8 @@ function renderSeparador() {
 function renderEditorial(b, campana) {
   const acento = colorMarca(campana.color_primario);
   const taupe = MOCK_TAUPE;
-  const crema = MOCK_CREMA;
+  const crema = colorCaja(b.caja_bg);
+  const crema2 = colorCaja(b.seccion2_caja_bg);
   const estilos = b.estilos || {};
   const st = (clave, defs) => cssEstiloTexto(estilos, clave, defs);
   const titulo = b.titulo || campana.titulo || 'Inspirational Blog';
@@ -440,10 +446,16 @@ function renderEditorial(b, campana) {
             ${fotoConCapa(b.imagen_2, 290, 190, 'Imagen 2', MOCK_CREMA_2, 12)}
           </td>
           <td class="nl-col" width="206" valign="middle" style="width:206px;">
-            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 6px 0;line-height:1.15;">${escConFormato(sec2Titulo)}</h2>
-            ${sec2Subtitulo ? `<p style="${st('seccion2_subtitulo', { fuente: 'montserrat', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 12px 0;">${escConFormato(sec2Subtitulo)}</p>` : ''}
-            ${parrafos(sec2Texto, `${st('seccion2_texto', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
-            <div style="margin-top:18px;">${botonEditorial(cta2, cta2Link, acento)}</div>
+            <h2 style="${st('seccion2_titulo', { fuente: 'montserrat', tamano: 28, color: TEXTO_OSCURO })};margin:0 0 12px 0;line-height:1.15;">${escConFormato(sec2Titulo)}</h2>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${crema2}" style="background-color:${crema2};">
+              <tr>
+                <td style="padding:22px 20px;">
+                  ${sec2Subtitulo ? `<p style="${st('seccion2_subtitulo', { fuente: 'montserrat', tamano: 13, negrita: false, cursiva: true, color: TEXTO_SUAVE })};margin:0 0 12px 0;">${escConFormato(sec2Subtitulo)}</p>` : ''}
+                  ${parrafos(sec2Texto, `${st('seccion2_texto', { fuente: 'montserrat', tamano: 13, color: TEXTO_OSCURO })};line-height:1.75;`)}
+                  <div style="margin-top:18px;">${botonEditorial(cta2, cta2Link, acento)}</div>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
       </table>
