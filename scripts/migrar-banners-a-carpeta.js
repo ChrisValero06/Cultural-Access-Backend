@@ -29,15 +29,18 @@ for (const envPath of envCandidates) {
 const { resolveBannersDir, publicUrlFor } = require('../utils/bannersStorage');
 
 function resolveUploadsDir(bannersDir) {
-  // Hermano: .../images/banners → .../images/uploads
-  const sibling = path.join(path.dirname(bannersDir), 'uploads');
-  if (fs.existsSync(sibling)) return sibling;
-
-  const fallbacks = [
-    path.join(__dirname, '../images/uploads'),
-    path.join(__dirname, '../httpdocs/images/uploads'),
+  const appRoot = path.join(__dirname, '..');
+  // Priorizar la carpeta real de Plesk: <app>/images/uploads
+  const candidates = [
+    path.join(appRoot, 'images', 'uploads'),
+    path.join(path.dirname(bannersDir), 'uploads'), // hermano de banners
+    path.join(appRoot, 'httpdocs', 'images', 'uploads'),
   ];
-  return fallbacks.find((d) => fs.existsSync(d)) || sibling;
+  return candidates.find((d) => fs.existsSync(d)) || candidates[0];
+}
+
+function resolveImagesRoot(uploadsDir) {
+  return path.dirname(uploadsDir); // .../images
 }
 
 function basenameFromDbPath(dbPath) {
@@ -50,10 +53,16 @@ function basenameFromDbPath(dbPath) {
 async function main() {
   const bannersDir = resolveBannersDir();
   const uploadsDir = resolveUploadsDir(bannersDir);
+  const imagesRoot = resolveImagesRoot(uploadsDir);
   fs.mkdirSync(bannersDir, { recursive: true });
 
-  console.log('📁 uploads:', uploadsDir);
+  console.log('📁 uploads:', uploadsDir, fs.existsSync(uploadsDir) ? '(ok)' : '(NO EXISTE)');
   console.log('📁 banners:', bannersDir);
+  console.log('📁 images :', imagesRoot);
+  if (bannersDir.includes(`${path.sep}httpdocs${path.sep}httpdocs${path.sep}`)) {
+    console.error('❌ Ruta banners duplicó httpdocs. En .env usa: PROMOCIONES_UPLOADS_DIR=./images/banners');
+    process.exit(1);
+  }
 
   const pool = await mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
@@ -86,19 +95,24 @@ async function main() {
       const nombre = basenameFromDbPath(valor);
       if (!nombre) continue;
 
-      const origen = path.join(uploadsDir, nombre);
+      // Buscar en uploads, en images/ raíz, o ya en banners
+      const candidatosOrigen = [
+        path.join(uploadsDir, nombre),
+        path.join(imagesRoot, nombre),
+        path.join(bannersDir, nombre),
+      ];
+      const origen = candidatosOrigen.find((p) => fs.existsSync(p));
       const destino = path.join(bannersDir, nombre);
       const nuevaRuta = publicUrlFor(nombre);
 
-      if (fs.existsSync(origen)) {
-        if (!fs.existsSync(destino)) {
+      if (origen) {
+        if (origen !== destino && !fs.existsSync(destino)) {
           fs.copyFileSync(origen, destino);
           copiados += 1;
           console.log(`✅ Copiado id=${row.id} ${campo}: ${nombre}`);
+        } else if (origen === destino || fs.existsSync(destino)) {
+          console.log(`↪️  Ya en banners id=${row.id} ${campo}: ${nombre}`);
         }
-        updates[campo] = nuevaRuta;
-      } else if (fs.existsSync(destino)) {
-        // Ya estaba en banners pero BD seguía con /uploads/
         updates[campo] = nuevaRuta;
       } else {
         faltantes += 1;
