@@ -35,13 +35,11 @@ router.use((req, res, next) => {
     next();
 });
 
-// La app puede vivir en /backend o en /backend/httpdocs. Se usa la carpeta que ya existe.
-// PROMOCIONES_UPLOADS_DIR en .env tiene prioridad.
-const UPLOADS_DIR = process.env.PROMOCIONES_UPLOADS_DIR || [
-    path.join(__dirname, '../images/uploads'),
-    path.join(__dirname, '../httpdocs/images/uploads'),
-].find((dir) => require('fs').existsSync(dir)) || path.join(__dirname, '../images/uploads');
-console.log('📁 Carpeta de imágenes de promociones:', UPLOADS_DIR);
+// Banners públicos en Plesk: httpdocs/images/banners → URL /images/banners/...
+// PROMOCIONES_UPLOADS_DIR en .env tiene prioridad (ruta absoluta en el servidor).
+const { resolveBannersDir, publicUrlFor } = require('../utils/bannersStorage');
+const UPLOADS_DIR = resolveBannersDir();
+console.log('📁 Carpeta de banners de promociones:', UPLOADS_DIR);
 
 // Configuración de multer para recibir archivos en memoria
 const upload = multer({
@@ -78,6 +76,8 @@ router.post('/', upload.fields([
         let imagenPrincipalPath = null;
         let imagenSecundariaPath = null;
 
+        await fs.mkdir(UPLOADS_DIR, { recursive: true });
+
         if (files.imagen_principal && files.imagen_principal[0]) {
             const imagenPrincipalFile = files.imagen_principal[0];
             const timestamp = Date.now();
@@ -90,7 +90,7 @@ router.post('/', upload.fields([
                 })
                 .webp({ quality: 80 })
                 .toFile(rutaCompleta);
-            imagenPrincipalPath = `/images/uploads/${nombreWebp}`;
+            imagenPrincipalPath = publicUrlFor(nombreWebp);
         }
 
         if (files.imagen_secundaria && files.imagen_secundaria[0]) {
@@ -105,7 +105,7 @@ router.post('/', upload.fields([
                 })
                 .webp({ quality: 80 })
                 .toFile(rutaCompleta);
-            imagenSecundariaPath = `/images/uploads/${nombreWebp}`;
+            imagenSecundariaPath = publicUrlFor(nombreWebp);
         }
 
         // Límite por tarjeta: una_vez | mensual | null
@@ -479,57 +479,44 @@ router.put('/:id', upload.fields([
             updateData.imagen_secundaria = existingPromo.data.imagen_secundaria || null;
         }
 
-        // ⭐⭐ PROCESAR NUEVAS IMÁGENES SI SE ENVIARON (sobrescribe la eliminación si hay archivo nuevo)
+        // Procesar nuevas imágenes (sobrescribe eliminación si hay archivo nuevo).
+        // Si falla el guardado, se aborta el PUT para no dejar rutas rotas en BD.
+        await fs.mkdir(UPLOADS_DIR, { recursive: true });
+
         if (files.imagen_principal && files.imagen_principal[0]) {
-            try {
-                const imagenPrincipalFile = files.imagen_principal[0];
-                const timestamp = Date.now();
-                const nombreWebp = `principal_${timestamp}.webp`;
-                const rutaCompleta = path.join(UPLOADS_DIR, nombreWebp);
+            const imagenPrincipalFile = files.imagen_principal[0];
+            const timestamp = Date.now();
+            const nombreWebp = `principal_${timestamp}.webp`;
+            const rutaCompleta = path.join(UPLOADS_DIR, nombreWebp);
 
-                // Asegurar que el directorio existe
-                await fs.mkdir(UPLOADS_DIR, { recursive: true });
+            await sharp(imagenPrincipalFile.buffer)
+                .resize(855, 334, {
+                    fit: 'cover',
+                    withoutEnlargement: true
+                })
+                .webp({ quality: 80 })
+                .toFile(rutaCompleta);
 
-                await sharp(imagenPrincipalFile.buffer)
-                    .resize(855, 334, {
-                        fit: 'cover',
-                        withoutEnlargement: true
-                    })
-                    .webp({ quality: 80 })
-                    .toFile(rutaCompleta);
-
-                updateData.imagen_principal = `/images/uploads/${nombreWebp}`;
-                console.log('✅ Imagen principal guardada:', updateData.imagen_principal);
-            } catch (imgError) {
-                console.error('❌ Error procesando imagen principal:', imgError.message);
-                // Mantener la imagen existente si hay error
-            }
+            updateData.imagen_principal = publicUrlFor(nombreWebp);
+            console.log('✅ Imagen principal guardada en', rutaCompleta, '→', updateData.imagen_principal);
         }
 
         if (files.imagen_secundaria && files.imagen_secundaria[0]) {
-            try {
-                const imagenSecundariaFile = files.imagen_secundaria[0];
-                const timestamp = Date.now();
-                const nombreWebp = `secundaria_${timestamp}.webp`;
-                const rutaCompleta = path.join(UPLOADS_DIR, nombreWebp);
+            const imagenSecundariaFile = files.imagen_secundaria[0];
+            const timestamp = Date.now();
+            const nombreWebp = `secundaria_${timestamp}.webp`;
+            const rutaCompleta = path.join(UPLOADS_DIR, nombreWebp);
 
-                // Asegurar que el directorio existe
-                await fs.mkdir(UPLOADS_DIR, { recursive: true });
+            await sharp(imagenSecundariaFile.buffer)
+                .resize(855, 334, {
+                    fit: 'cover',
+                    withoutEnlargement: true
+                })
+                .webp({ quality: 80 })
+                .toFile(rutaCompleta);
 
-                await sharp(imagenSecundariaFile.buffer)
-                    .resize(855, 334, {
-                        fit: 'cover',
-                        withoutEnlargement: true
-                    })
-                    .webp({ quality: 80 })
-                    .toFile(rutaCompleta);
-
-                updateData.imagen_secundaria = `/images/uploads/${nombreWebp}`;
-                console.log('✅ Imagen secundaria guardada:', updateData.imagen_secundaria);
-            } catch (imgError) {
-                console.error('❌ Error procesando imagen secundaria:', imgError.message);
-                // Mantener la imagen existente si hay error
-            }
+            updateData.imagen_secundaria = publicUrlFor(nombreWebp);
+            console.log('✅ Imagen secundaria guardada en', rutaCompleta, '→', updateData.imagen_secundaria);
         }
 
         // Filtrar campos, pero incluir null explícitamente para eliminar imágenes

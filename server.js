@@ -24,6 +24,14 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'dist')));
 
+// Servir banners desde httpdocs/images (Plesk) por si la petición llega a Node
+const httpdocsImages = path.join(__dirname, 'httpdocs', 'images');
+const fsSync = require('fs');
+if (fsSync.existsSync(httpdocsImages)) {
+  app.use('/images', express.static(httpdocsImages));
+  console.log('🖼️  Estáticos /images →', httpdocsImages);
+}
+
 // ─── Middleware: bloquear tarjetas dadas de baja en redenciones ───
 app.use(['/api/controlacceso', '/api/control-acceso'], async (req, res, next) => {
   if (req.method !== 'POST') return next();
